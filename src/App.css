@@ -1,2 +1,48 @@
-main {
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* REGISTRO DE FUENTES LOCALES */
+@font-face {
+  font-family: 'Waltograph';
+  src: url('/Waltograph42.otf') format('opentype');
+  font-weight: normal; font-style: normal;
 }
+@font-face {
+  font-family: 'Enchanted';
+  src: url('/Enchanted Land.otf') format('opentype');
+  font-weight: normal; font-style: normal;
+}
+
+/* CLASES DE UTILIDAD PARA FUENTES */
+.font-walt { 
+  font-family: 'Waltograph', sans-serif; 
+  letter-spacing: 0.05em;
+  /* CRUCIAL: Evita que se fuerce a mayúsculas, respetando "Disney" */
+  text-transform: none !important; 
+}
+.font-enchanted { font-family: 'Enchanted', sans-serif; }
+
+/* ESTILOS GENERALES */
+body { background-color: #000; color: white; font-family: 'Lato', sans-serif; }
+h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
+
+/* HERO VIDEO */
+.hero-wrapper { position: relative; height: 100vh; width: 100%; overflow: hidden; }
+.hero-video {
+  position: absolute; top: 50%; left: 50%;
+  min-width: 100%; min-height: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover; z-index: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+.hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); z-index: 10; }
+
+/* OTROS */
+.card-container { position: relative; overflow: hidden; height: 600px; }
+.card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s ease; }
+.card-container:hover .card-img { transform: scale(1.1); }
+.dvc-section { position: relative; padding: 6rem 0; overflow: hidden; }
+.dvc-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
