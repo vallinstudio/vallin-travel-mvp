@@ -85,9 +85,9 @@ const VallinTravelMVP = () => {
       };
 
       // ---------------------------------------------------------
-      // URL V12 AUTORIZADA
+      // URL V17 FINAL (INTEGRADA)
       // ---------------------------------------------------------
-      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz680wOJqReDYqfq5L-BbHuf9HxX-jPCRS5INY9ul7fj7gYfBFBvrTFCJYVdHoVGM_B/exec"; 
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzBBPdY-rh2rAwC2t2iDS7I6C501_O0O2ECnVKENy8wwZjNqmUOTBryKb/exec"; 
 
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
