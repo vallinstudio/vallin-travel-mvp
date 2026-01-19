@@ -44,7 +44,7 @@ const VallinTravelMVP = () => {
       }
     };
 
-    // --- VALIDACIÓN ESTRICTA ---
+    // --- VALIDACIÓN ---
     const validateForm = () => {
       const newErrors = {};
       const { name, email, phone, startDate, endDate, destination, travelers, budget } = formData;
@@ -85,9 +85,9 @@ const VallinTravelMVP = () => {
       };
 
       // ---------------------------------------------------------
-      // TU URL V7 (FORCE ALIAS)
+      // URL V12 AUTORIZADA
       // ---------------------------------------------------------
-      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7ZoBCKx7C7yTKdOgDI00Faa-Kfmeo3p_vi-Zfeg2ZoUkEVPWr1ExRPWeS6Y1l1pNW/exec"; 
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz680wOJqReDYqfq5L-BbHuf9HxX-jPCRS5INY9ul7fj7gYfBFBvrTFCJYVdHoVGM_B/exec"; 
 
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
@@ -134,7 +134,7 @@ const VallinTravelMVP = () => {
 
               <h3 className="text-3xl font-serif text-white mb-2">Request Received</h3>
               <p className="text-gray-400 font-light mb-8 max-w-xs mx-auto">
-                We have secured your request. A confirmation email has been sent.
+                We have secured your request. Check your email for confirmation.
               </p>
 
               <div className="w-full border-t border-white/10 pt-8 mt-2">
