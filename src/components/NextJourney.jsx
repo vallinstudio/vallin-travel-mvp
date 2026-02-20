@@ -1,37 +1,44 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+
+// --- IMPORTAMOS EL DICCIONARIO ---
+import { dictionary } from '../dictionary';
 
 const NextJourney = ({ current }) => {
   const navigate = useNavigate();
+  // EXTRAEMOS IDIOMA Y DICCIONARIO
+  const { lang } = useOutletContext();
+  const tc = dictionary[lang].coll;
+  const tn = dictionary[lang].next;
 
   // Definimos todas las colecciones aquí para centralizar la navegación
   const allCollections = [
     { 
       id: "disney", 
-      title: "Legacy & Magic", 
+      title: tc.c1, 
       subtitle: "Disney & Universal", 
       image: "/castillo.jpg", 
       path: "/disney" 
     },
     { 
       id: "honeymoon", 
-      title: "Honeymoon", 
-      subtitle: "Curated Romance", 
+      title: tc.c2, 
+      subtitle: tc.sub2, 
       image: "/honey.jpeg", 
       path: "/honeymoon" 
     },
     { 
       id: "expedition", 
-      title: "Expedition", 
-      subtitle: "For the Intrepid", 
+      title: tc.c3, 
+      subtitle: tc.sub3, 
       image: "/expedition.jpg", 
       path: "/expedition" 
     },
     { 
       id: "wellness", 
-      title: "Wellness", 
-      subtitle: "Sanctuaries", 
+      title: tc.c4, 
+      subtitle: tc.sub4, 
       image: "/wellness.jpeg", 
       path: "/wellness" 
     }
@@ -49,9 +56,9 @@ const NextJourney = ({ current }) => {
     <section className="py-20 bg-white border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-end mb-8">
-            <h3 className="text-3xl font-serif text-black">Continue Your Journey</h3>
+            <h3 className="text-3xl font-serif text-black">{tn.contJourney}</h3>
             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1">
-                Swipe to Explore <ArrowRight size={14} />
+                {tn.swipeExp} <ArrowRight size={14} />
             </span>
         </div>
 

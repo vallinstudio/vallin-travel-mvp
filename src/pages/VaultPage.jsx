@@ -3,6 +3,9 @@ import { useOutletContext, useNavigate } from 'react-router-dom';
 import { Star, Zap, Lock, Users, Calendar, Search, AlertCircle, TrendingDown, ArrowRight, Info } from 'lucide-react';
 import ScrollIndicator from '../components/ScrollIndicator';
 
+// --- IMPORTAMOS CEREBRO Y DICCIONARIO ---
+import { dictionary } from '../dictionary';
+
 // --- 1. MOTOR DE TEMPORADAS DVC 2026 (REALISTA) ---
 const getSeasonTier = (dateString) => {
   if (!dateString) return 'tier2';
@@ -77,17 +80,21 @@ const dvcInventory = [
   }
 ];
 
-// Datos de Colecciones
-const collections = [
-    { id: "disney", title: "Legacy & Magic", subtitle: "Disney & Universal", image: "/castillo.jpg", path: "/disney" },
-    { id: "honeymoon", title: "Honeymoon", subtitle: "Curated Romance", image: "/honey.jpeg", path: "/honeymoon" },
-    { id: "expedition", title: "Expedition", subtitle: "For the Intrepid", image: "/expedition.jpg", path: "/expedition" },
-    { id: "wellness", title: "Wellness", subtitle: "Sanctuaries", image: "/wellness.jpeg", path: "/wellness" }
-];
-
 const VaultPage = () => {
-  const { openContact } = useOutletContext();
+  // OBTENEMOS EL IDIOMA DESDE EL OUTLET CONTEXT Y CARGAMOS EL DICCIONARIO
+  const { openContact, lang } = useOutletContext();
   const navigate = useNavigate();
+
+  const tc = dictionary[lang].coll; // Para la sección del carousel
+  const tv = dictionary[lang].vaultPage; // Para los textos propios de Vault
+
+  // Datos de Colecciones
+  const collections = [
+      { id: "disney", title: tc.c1, subtitle: "Disney & Universal", image: "/castillo.jpg", path: "/disney" },
+      { id: "honeymoon", title: tc.c2, subtitle: tc.sub2, image: "/honey.jpeg", path: "/honeymoon" },
+      { id: "expedition", title: tc.c3, subtitle: tc.sub3, image: "/expedition.jpg", path: "/expedition" },
+      { id: "wellness", title: tc.c4, subtitle: tc.sub4, image: "/wellness.jpeg", path: "/wellness" }
+  ];
 
   // STATES
   const [guestCount, setGuestCount] = useState(2);
@@ -248,9 +255,9 @@ const VaultPage = () => {
                 The Vault
             </h1>
             <p className="text-lg md:text-xl text-gray-200 font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-                Intelligent Inventory Arbitrage. <br/>
+                {tv.heroSub} <br/>
                 <span className="text-sm text-gray-300 mt-2 font-sans tracking-wide">
-                    Real-Time Seasonality Analysis & Multi-Unit Logic.
+                    {tv.heroDesc}
                 </span>
             </p>
         </div>
@@ -268,10 +275,10 @@ const VaultPage = () => {
                 <div>
                     <h3 className="text-xl font-serif italic flex items-center gap-3">
                         <img src="/LOGO1BCO_1.svg" alt="Smart Mouse Logo" className="h-8 w-auto" />
-                        SMART MOUSE (Quote Engine)
+                        {tv.engineTitle}
                     </h3>
                     <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest pl-1">
-                        Configure party & dates to unlock inventory
+                        {tv.engineSub}
                     </p>
                 </div>
             </div>
@@ -281,7 +288,7 @@ const VaultPage = () => {
 
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                            <Users size={12} /> Party Size
+                            <Users size={12} /> {tv.partySize}
                         </label>
                         <select 
                             value={guestCount}
@@ -289,14 +296,14 @@ const VaultPage = () => {
                             className="w-full bg-white border border-gray-300 p-4 font-serif text-lg focus:outline-none focus:border-orange-500 transition-colors cursor-pointer"
                         >
                             {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => (
-                                <option key={n} value={n}>{n} Guests</option>
+                                <option key={n} value={n}>{n} {dictionary[lang].engine.guests}</option>
                             ))}
                         </select>
                     </div>
 
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                            <Calendar size={12} /> Check-In
+                            <Calendar size={12} /> {tv.checkIn}
                         </label>
                         <input 
                             type="date" 
@@ -309,7 +316,7 @@ const VaultPage = () => {
 
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                            <Calendar size={12} /> Check-Out
+                            <Calendar size={12} /> {tv.checkOut}
                         </label>
                         <input 
                             type="date" 
@@ -329,7 +336,7 @@ const VaultPage = () => {
                                 ${!startDate || !endDate ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-orange-600 text-white hover:bg-black'}
                             `}
                         >
-                            {isCalculating ? "Calculating..." : <><Search size={14} /> Find Rates</>}
+                            {isCalculating ? tv.btnCalc : <><Search size={14} /> {tv.btnFind}</>}
                         </button>
                     </div>
                 </div>
@@ -341,16 +348,16 @@ const VaultPage = () => {
                 {!hasSearched && (
                     <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400">
                         <Lock size={48} className="mb-4 text-gray-200" />
-                        <p className="font-serif text-xl">System Standby</p>
-                        <p className="text-xs uppercase tracking-widest mt-2">Enter trip details to calculate arbitrage.</p>
+                        <p className="font-serif text-xl">{tv.standbyTitle}</p>
+                        <p className="text-xs uppercase tracking-widest mt-2">{tv.standbySub}</p>
                     </div>
                 )}
 
                 {isCalculating && (
                     <div className="flex flex-col items-center justify-center h-full py-20 animate-pulse">
                         <Zap size={48} className="mb-4 text-orange-500" />
-                        <p className="font-serif text-xl">Cross-referencing 2026 Point Tables...</p>
-                        <p className="text-xs uppercase tracking-widest mt-2">Checking Inventory Splitting Logic</p>
+                        <p className="font-serif text-xl">{tv.calcTitle}</p>
+                        <p className="text-xs uppercase tracking-widest mt-2">{tv.calcSub}</p>
                     </div>
                 )}
 
@@ -358,13 +365,13 @@ const VaultPage = () => {
                     <div className="p-8">
                         <div className="flex justify-between items-end mb-6 border-b border-gray-100 pb-4">
                             <div>
-                                <h4 className="font-serif text-2xl">Identified Opportunities</h4>
+                                <h4 className="font-serif text-2xl">{tv.oppTitle}</h4>
                                 <p className="text-xs text-gray-400 uppercase tracking-widest mt-1">
-                                    {availableOptions[0].nights} Nights &bull; {guestCount} Guests
+                                    {availableOptions[0].nights} {lang === 'es' ? 'Noches' : 'Nights'} &bull; {guestCount} {dictionary[lang].engine.guests}
                                 </p>
                             </div>
                             <span className="text-[10px] font-bold bg-black text-white px-3 py-1 uppercase tracking-widest">
-                                {availableOptions.length} Options
+                                {availableOptions.length} {tv.oppOptions}
                             </span>
                         </div>
 
@@ -386,13 +393,13 @@ const VaultPage = () => {
                                                     {opt.roomName}
                                                     {opt.type === 'split' && (
                                                         <span className="bg-blue-100 text-blue-800 px-1.5 py-0.5 text-[8px] rounded-sm">
-                                                            MULTI-UNIT
+                                                            {tv.multiUnit}
                                                         </span>
                                                     )}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className="text-[9px] border border-gray-200 px-2 py-0.5 rounded text-gray-400 flex items-center gap-1">
-                                                        <Users size={8}/> Capacity: {opt.capacity}
+                                                        <Users size={8}/> {tv.capacity}: {opt.capacity}
                                                     </span>
                                                 </div>
                                             </div>
@@ -400,7 +407,7 @@ const VaultPage = () => {
 
                                         <div className="md:col-span-5 flex justify-between items-center px-4 md:border-l md:border-r border-gray-100">
                                             <div className="text-center opacity-40 grayscale group-hover:grayscale-0 transition-all">
-                                                <p className="text-[9px] uppercase tracking-widest text-gray-500 mb-1">Disney Direct</p>
+                                                <p className="text-[9px] uppercase tracking-widest text-gray-500 mb-1">{tv.disneyDirect}</p>
                                                 <p className="text-xl font-serif text-gray-800 line-through decoration-red-500 decoration-1">
                                                     ${opt.cashPrice.toLocaleString()}
                                                 </p>
@@ -409,7 +416,7 @@ const VaultPage = () => {
                                             <ArrowRight size={16} className="text-gray-300" />
 
                                             <div className="text-center scale-110">
-                                                <p className="text-[9px] uppercase tracking-widest text-orange-600 mb-1 font-bold">Smart Rate</p>
+                                                <p className="text-[9px] uppercase tracking-widest text-orange-600 mb-1 font-bold">{tv.smartRate}</p>
                                                 <p className="text-2xl font-serif text-black font-medium">
                                                     ${opt.smartPrice.toLocaleString()}
                                                 </p>
@@ -419,10 +426,10 @@ const VaultPage = () => {
                                         <div className="md:col-span-3 flex flex-col items-end justify-center gap-3">
                                             <div className="text-right">
                                                 <span className="text-sm font-bold text-green-600 flex items-center justify-end gap-1">
-                                                    <TrendingDown size={14}/> Save {opt.percent}%
+                                                    <TrendingDown size={14}/> {tv.save} {opt.percent}%
                                                 </span>
                                                 <span className="text-[10px] text-gray-400 block">
-                                                    approx. ${opt.savings.toLocaleString()} USD
+                                                    {tv.approx} ${opt.savings.toLocaleString()} USD
                                                 </span>
                                             </div>
                                             {/* BOTÓN CONTEXTUAL INTELIGENTE */}
@@ -438,7 +445,7 @@ const VaultPage = () => {
                                                 })}
                                                 className="bg-black text-white px-6 py-3 text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-orange-600 transition w-full"
                                             >
-                                                Request Quote
+                                                {tv.reqQuote}
                                             </button>
                                         </div>
 
@@ -452,8 +459,8 @@ const VaultPage = () => {
                 {!isCalculating && hasSearched && availableOptions.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400">
                         <AlertCircle size={48} className="mb-4 text-red-300" />
-                        <p className="font-serif text-xl">High Demand / No Inventory</p>
-                        <p className="text-xs uppercase tracking-widest mt-2">Try adjusting dates or splitting party size.</p>
+                        <p className="font-serif text-xl">{tv.noInvTitle}</p>
+                        <p className="text-xs uppercase tracking-widest mt-2">{tv.noInvSub}</p>
                     </div>
                 )}
 
@@ -464,27 +471,27 @@ const VaultPage = () => {
       {/* 3. EXPLAINER */}
       <div className="bg-gray-50 py-20 px-6 border-t border-gray-200">
         <div className="max-w-4xl mx-auto text-center">
-            <h3 className="text-3xl font-serif mb-12">The Smart Mouse Protocol</h3>
+            <h3 className="text-3xl font-serif mb-12">{tv.protTitle}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
                 <div>
                     <div className="text-4xl text-gray-300 font-serif mb-4">01.</div>
-                    <h4 className="font-bold text-sm uppercase tracking-widest mb-3">Inventory Arbitrage</h4>
+                    <h4 className="font-bold text-sm uppercase tracking-widest mb-3">{tv.p1Title}</h4>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                        We leverage the DVC rental market, acquiring wholesale points to book premium villas at a fraction of the rack rate.
+                        {tv.p1Desc}
                     </p>
                 </div>
                 <div>
                     <div className="text-4xl text-gray-300 font-serif mb-4">02.</div>
-                    <h4 className="font-bold text-sm uppercase tracking-widest mb-3">Seamless Booking</h4>
+                    <h4 className="font-bold text-sm uppercase tracking-widest mb-3">{tv.p2Title}</h4>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                        Our team handles the complexity. You receive an official Disney confirmation number linked directly to your My Disney Experience app.
+                        {tv.p2Desc}
                     </p>
                 </div>
                 <div>
                     <div className="text-4xl text-gray-300 font-serif mb-4">03.</div>
-                    <h4 className="font-bold text-sm uppercase tracking-widest mb-3">Intelligent Luxury</h4>
+                    <h4 className="font-bold text-sm uppercase tracking-widest mb-3">{tv.p3Title}</h4>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                        Same room, same view, same perks. The only difference is the price you pay.
+                        {tv.p3Desc}
                     </p>
                 </div>
             </div>
@@ -495,9 +502,9 @@ const VaultPage = () => {
       <section className="py-20 bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6">
             <div className="flex justify-between items-end mb-8">
-                <h3 className="text-3xl font-serif text-black">Continue Your Journey</h3>
+                <h3 className="text-3xl font-serif text-black">{tv.contJourney}</h3>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1">
-                    Swipe to Explore <ArrowRight size={14} />
+                    {tv.swipeExp} <ArrowRight size={14} />
                 </span>
             </div>
 

@@ -2,23 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, Mail, ShieldCheck, ArrowRight, CheckCircle, MessageCircle, Anchor, Loader2, AlertCircle, Check } from 'lucide-react';
 
+import { dictionary } from '../dictionary';
+import { useLanguage } from '../useLanguage';
+
 const MainLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [prefillData, setPrefillData] = useState(null); 
   const [scrolled, setScrolled] = useState(false);
 
-  // ESTADO PARA COOKIES (GLOBAL)
   const [showCookieBanner, setShowCookieBanner] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { lang, changeLanguage } = useLanguage();
+  const t = dictionary[lang];
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
 
-    // CHEQUEO DE COOKIES AL CARGAR EL SITIO
     const consent = localStorage.getItem('vallin_cookie_consent');
     if (!consent) setShowCookieBanner(true);
 
@@ -82,9 +86,9 @@ const MainLayout = () => {
             let travelerRange = "";
             if (prefillData.guests) {
                 const g = Number(prefillData.guests);
-                if (g <= 2) travelerRange = "1-2 People";
-                else if (g <= 5) travelerRange = "Family (3-5)";
-                else travelerRange = "Large Group (6+)";
+                if (g <= 2) travelerRange = t.modal.p1;
+                else if (g <= 5) travelerRange = t.modal.p2;
+                else travelerRange = t.modal.p3;
             }
 
             let dest = prefillData.destination || "Disney World"; 
@@ -107,7 +111,7 @@ const MainLayout = () => {
                 requests: finalMessage
             }));
         }
-    }, [prefillData, isContactOpen]);
+    }, [prefillData, isContactOpen, t]);
 
     const handleChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -118,16 +122,16 @@ const MainLayout = () => {
       const newErrors = {};
       const { name, email, phone, startDate, endDate, destination, travelers, budget } = formData;
 
-      if (name.trim().length < 3) newErrors.name = "Name is too short.";
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Invalid email format.";
-      if (phone.replace(/[^0-9]/g, '').length < 10) newErrors.phone = "Phone must be at least 10 digits.";
-      if (!startDate) newErrors.startDate = "Required.";
+      if (name.trim().length < 3) newErrors.name = t.modal.errName;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = t.modal.errMail;
+      if (phone.replace(/[^0-9]/g, '').length < 10) newErrors.phone = t.modal.errPhone;
+      if (!startDate) newErrors.startDate = t.modal.errReq;
       if (endDate && startDate && new Date(endDate) <= new Date(startDate)) {
-        newErrors.endDate = "Invalid date range.";
+        newErrors.endDate = t.modal.errDate;
       }
-      if (!destination) newErrors.destination = "Required.";
-      if (!travelers) newErrors.travelers = "Required.";
-      if (!budget) newErrors.budget = "Required.";
+      if (!destination) newErrors.destination = t.modal.errReq;
+      if (!travelers) newErrors.travelers = t.modal.errReq;
+      if (!budget) newErrors.budget = t.modal.errReq;
 
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
@@ -162,7 +166,9 @@ const MainLayout = () => {
     };
 
     const getWhatsAppLink = () => {
-      const text = `Hola Jorge, solicitud desde Vallin.travel:\n*${formData.destination}*\nCliente: *${formData.name}*\n\n${formData.requests}`;
+      const text = lang === 'es' 
+        ? `Hola Jorge, acabo de solicitar información en vallin.travel para *${formData.destination}*. Mi nombre es *${formData.name}*.`
+        : `Hi Jorge, I just requested information on vallin.travel for *${formData.destination}*. My name is *${formData.name}*.`;
       return `https://wa.me/525655857811?text=${encodeURIComponent(text)}`;
     };
 
@@ -179,38 +185,39 @@ const MainLayout = () => {
               <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6 border border-green-500/20">
                 <CheckCircle className="w-8 h-8 text-green-500" />
               </div>
-              <h3 className="text-3xl font-serif text-white mb-2">Request Received</h3>
-              <p className="text-gray-400 font-light mb-8 max-w-xs mx-auto">We have secured your request. Check your email for confirmation.</p>
+              <h3 className="text-3xl font-serif text-white mb-2">{t.modal.successTitle}</h3>
+              <p className="text-gray-400 font-light mb-8 max-w-xs mx-auto">{t.modal.successDesc1}<br/>{t.modal.successDesc2}</p>
               <div className="w-full border-t border-white/10 pt-8 mt-2">
+                <p className="text-[10px] uppercase tracking-widest text-orange-400 mb-4">{t.modal.prio}</p>
                 <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 px-6 w-full flex items-center justify-center gap-3 transition-all font-bold uppercase tracking-widest text-xs shadow-lg rounded-none">
-                  <MessageCircle size={18} /> Confirm via WhatsApp
+                  <MessageCircle size={18} /> {t.modal.waBtn}
                 </a>
               </div>
             </div>
           ) : (
              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                <div className="mb-8 border-l-2 border-orange-500 pl-4">
-                  <h3 className="text-3xl font-serif text-white mb-1">Design Your Trip</h3>
+                  <h3 className="text-3xl font-serif text-white mb-1">{t.modal.title}</h3>
                   <p className="text-[10px] text-gray-400 uppercase tracking-widest">
-                      {prefillData ? "Smart Quote Configuration Loaded" : "Powered by Smart Mouse Tech"}
+                      {prefillData ? "Smart Quote Configuration Loaded" : t.modal.subtitle}
                   </p>
                </div>
 
                <div className="grid grid-cols-2 gap-4">
                    <div>
-                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Name *</label>
-                       <input name="name" type="text" value={formData.name} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.name ? 'border-red-500' : 'border-white/10'}`} placeholder="Full Name" />
+                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.name}</label>
+                       <input name="name" type="text" value={formData.name} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.name ? 'border-red-500' : 'border-white/10'}`} placeholder={t.modal.namePl} />
                        {errors.name && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.name}</span>}
                    </div>
                    <div>
-                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Email *</label>
+                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.email}</label>
                        <input name="email" type="email" value={formData.email} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.email ? 'border-red-500' : 'border-white/10'}`} placeholder="email@domain.com" />
                        {errors.email && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.email}</span>}
                    </div>
                </div>
 
                <div>
-                   <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Phone Number *</label>
+                   <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.phone}</label>
                    <div className="flex gap-2">
                       <select name="countryCode" value={formData.countryCode} onChange={handleChange} className="bg-black/40 border border-white/10 p-3 text-sm text-white focus:border-orange-500 outline-none w-24 appearance-none text-center">
                          <option value="+52">🇲🇽 +52</option><option value="+1">🇺🇸 +1</option><option value="+34">🇪🇸 +34</option><option value="+54">🇦🇷 +54</option>
@@ -222,55 +229,55 @@ const MainLayout = () => {
 
                <div className="grid grid-cols-2 gap-4">
                    <div>
-                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Check-in *</label>
+                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.in}</label>
                        <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.startDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
                        {errors.startDate && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.startDate}</span>}
                    </div>
                    <div>
-                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Check-out</label>
+                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.out}</label>
                        <input name="endDate" type="date" min={formData.startDate} value={formData.endDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.endDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
                        {errors.endDate && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.endDate}</span>}
                    </div>
                </div>
 
                <div>
-                 <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Where to? *</label>
+                 <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.where}</label>
                  <select name="destination" value={formData.destination} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm focus:border-orange-500 transition outline-none appearance-none ${formData.destination === "" ? "text-gray-500" : "text-white"} ${errors.destination ? 'border-red-500' : 'border-white/10'}`}>
-                   <option value="" disabled>Select a Collection...</option>
-                   <option value="Disney World">Walt Disney World (Orlando)</option>
-                   <option value="Disneyland">Disneyland (California)</option>
-                   <option value="Disney Cruise">Disney Cruise Line</option>
-                   <option value="Universal">Universal Studios</option>
-                   <option value="Europe">European Expedition</option>
-                   <option value="Other">Other Custom Request</option>
+                   <option value="" disabled>{t.modal.selColl}</option>
+                   <option value="Disney World">{t.modal.wdw}</option>
+                   <option value="Disneyland">{t.modal.dlr}</option>
+                   <option value="Disney Cruise">{t.modal.dcl}</option>
+                   <option value="Universal">{t.modal.uni}</option>
+                   <option value="Europe">{t.modal.eur}</option>
+                   <option value="Other">{t.modal.oth}</option>
                  </select>
                  {errors.destination && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.destination}</span>}
                </div>
 
                <div className="grid grid-cols-2 gap-4">
                    <div>
-                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Travelers *</label>
+                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.pax}</label>
                        <select name="travelers" value={formData.travelers} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm focus:border-orange-500 transition outline-none ${formData.travelers === "" ? "text-gray-500" : "text-white"} ${errors.travelers ? 'border-red-500' : 'border-white/10'}`}>
-                         <option value="" disabled>Select...</option><option>1-2 People</option><option>Family (3-5)</option><option>Large Group (6+)</option>
+                         <option value="" disabled>{t.modal.sel}</option><option>{t.modal.p1}</option><option>{t.modal.p2}</option><option>{t.modal.p3}</option>
                        </select>
                        {errors.travelers && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.travelers}</span>}
                    </div>
                    <div>
-                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Budget (USD) *</label>
+                       <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.bud}</label>
                        <select name="budget" value={formData.budget} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm focus:border-orange-500 transition outline-none ${formData.budget === "" ? "text-gray-500" : "text-white"} ${errors.budget ? 'border-red-500' : 'border-white/10'}`}>
-                         <option value="" disabled>Range...</option><option>$3,000 - $5,000</option><option>$5,000 - $10,000</option><option>$10,000 - $20,000</option><option>$20,000+</option>
+                         <option value="" disabled>{t.modal.range}</option><option>$3,000 - $5,000</option><option>$5,000 - $10,000</option><option>$10,000 - $20,000</option><option>$20,000+</option>
                        </select>
                        {errors.budget && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.budget}</span>}
                    </div>
                </div>
 
                <div>
-                 <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">Special Requests</label>
-                 <textarea name="requests" rows="4" value={formData.requests} onChange={handleChange} className="w-full bg-black/40 border border-white/10 p-3 text-sm text-white focus:border-orange-500 transition outline-none font-sans" placeholder="Specific hotel, celebrations, accessibility..."></textarea>
+                 <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.req}</label>
+                 <textarea name="requests" rows="4" value={formData.requests} onChange={handleChange} className="w-full bg-black/40 border border-white/10 p-3 text-sm text-white focus:border-orange-500 transition outline-none font-sans" placeholder={t.modal.reqPl}></textarea>
                </div>
 
                 <button type="submit" disabled={formStatus === "submitting"} className="bg-white text-black py-4 mt-2 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 hover:text-white transition shadow-lg flex justify-center items-center gap-2 w-full cursor-pointer">
-                   {formStatus === "submitting" ? (<>Processing <Loader2 className="animate-spin" size={14}/></>) : (<>Inquire Availability <ArrowRight size={14} /></>)}
+                   {formStatus === "submitting" ? (<>{t.modal.proc} <Loader2 className="animate-spin" size={14}/></>) : (<>{t.modal.btn} <ArrowRight size={14} /></>)}
                 </button>
              </form>
           )}
@@ -296,19 +303,37 @@ const MainLayout = () => {
           </div>
 
           <div className="hidden md:flex items-center justify-center gap-12 text-xs font-bold uppercase tracking-[0.2em] flex-1">
-            <button onClick={() => handleScrollToSection('collections')} className="hover:text-orange-500 transition uppercase">Collections</button>
-            <Link to="/vault" className="hover:text-orange-500 transition uppercase">The Vault</Link>
+            <button onClick={() => handleScrollToSection('collections')} className="hover:text-orange-500 transition uppercase">{t.nav.collections}</button>
+            <Link to="/vault" className="hover:text-orange-500 transition uppercase">{t.nav.vault}</Link>
           </div>
 
-          <div className="hidden md:flex items-center justify-end gap-8 flex-1">
+          <div className="hidden md:flex items-center justify-end gap-6 flex-1">
+            {/* BOTÓN IDIOMA DESKTOP MEJORADO */}
+            <button 
+                onClick={() => changeLanguage(lang === 'en' ? 'es' : 'en')} 
+                className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black hover:bg-orange-500 hover:text-white' : 'bg-white/10 backdrop-blur-md hover:bg-white hover:text-black border border-white/20 text-white'}`}
+            >
+              {lang === 'en' ? 'ES' : 'EN'}
+            </button>
+
             <a href="tel:+525655857811" className={`flex items-center gap-2 text-[10px] font-bold tracking-widest hover:text-orange-500 transition ${scrolled ? 'text-gray-400' : 'text-white/80'}`}>
                <Phone size={12} /> +52 56 5585 7811
             </a>
+
             <button onClick={() => handleOpenContact()} className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black hover:bg-orange-500 hover:text-white' : 'bg-white/10 backdrop-blur-md hover:bg-white hover:text-black border border-white/20'}`}>
-              Inquire
+              {t.nav.inquire}
             </button>
           </div>
-          <div className="md:hidden">
+
+          <div className="md:hidden flex items-center gap-4">
+            {/* BOTÓN IDIOMA MOBILE MEJORADO */}
+            <button 
+                onClick={() => changeLanguage(lang === 'en' ? 'es' : 'en')} 
+                className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black' : 'bg-white/10 backdrop-blur-md border border-white/20 text-white'}`}
+            >
+              {lang === 'en' ? 'ES' : 'EN'}
+            </button>
+
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white">
               {isMenuOpen ? <X /> : <Menu />}
             </button>
@@ -319,16 +344,16 @@ const MainLayout = () => {
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 bg-black pt-32 px-6 md:hidden">
           <div className="flex flex-col gap-8 text-xl font-serif italic text-center">
-            <button onClick={() => handleScrollToSection('collections')} className="uppercase">Collections</button>
-            <Link to="/vault" className="uppercase" onClick={() => setIsMenuOpen(false)}>The Vault</Link>
-            <button onClick={() => { setIsMenuOpen(false); handleOpenContact(); }} className="text-orange-500">Inquire Now</button>
+            <button onClick={() => handleScrollToSection('collections')} className="uppercase">{t.nav.collections}</button>
+            <Link to="/vault" className="uppercase" onClick={() => setIsMenuOpen(false)}>{t.nav.vault}</Link>
+            <button onClick={() => { setIsMenuOpen(false); handleOpenContact(); }} className="text-orange-500">{t.nav.inquireNow}</button>
             <a href="tel:+525655857811" className="text-sm font-sans tracking-widest text-gray-400">+52 56 5585 7811</a>
           </div>
         </div>
       )}
 
       <div className="flex-grow">
-          <Outlet context={{ openContact: handleOpenContact }} />
+          <Outlet context={{ openContact: handleOpenContact, lang: lang }} />
       </div>
 
       <footer className="bg-black text-gray-400 py-20 border-t border-gray-900 text-xs">
@@ -337,7 +362,7 @@ const MainLayout = () => {
             <div className="h-4 flex items-center mb-6">
               <img src="/logo.svg" alt="Vallin Travel" className="h-full w-auto object-contain filter brightness-0 invert opacity-80" />
             </div>
-            <p className="leading-relaxed mb-6 text-gray-500">Boutique travel design specializing in high-yield experiences.</p>
+            <p className="leading-relaxed mb-6 text-gray-500">{t.footer.desc}</p>
             <a href="mailto:concierge@vallin.travel?subject=Concierge%20(Contact%20me)" className="flex items-center gap-2 text-white hover:text-orange-500 transition mb-8">
                 <Mail size={14} /> concierge@vallin.travel
             </a>
@@ -346,7 +371,7 @@ const MainLayout = () => {
                    <ShieldCheck className="w-3 h-3 text-orange-600"/> 
                    <div className="flex items-baseline gap-1">
                        <span className="font-walt relative text-sm leading-none">Disney</span>
-                       <span className="text-[9px] uppercase tracking-wider font-sans">Certified</span>
+                       <span className="text-[9px] uppercase tracking-wider font-sans">{t.footer.cert1}</span>
                    </div>
                </div>
 
@@ -354,42 +379,41 @@ const MainLayout = () => {
                    <ShieldCheck className="w-3 h-3 text-orange-600"/> 
                    <div className="flex items-baseline gap-1">
                        <span className="font-universal relative text-[9px] leading-none tracking-widest">UNIVERSAL</span>
-                       <span className="text-[9px] uppercase tracking-wider font-sans">Certified</span>
+                       <span className="text-[9px] uppercase tracking-wider font-sans">{t.footer.cert1}</span>
                    </div>
                </div>
 
                <div className="px-3 py-2 border border-gray-800 bg-gray-900/30 text-[9px] uppercase tracking-wider flex items-center gap-2 cursor-default w-fit">
-                   <Anchor className="w-3 h-3 text-orange-600"/> CLIA Member
+                   <Anchor className="w-3 h-3 text-orange-600"/> {t.footer.cert2}
                </div>
             </div>
           </div>
 
           <div className="col-span-1 md:col-span-1">
-            <h4 className="text-white font-bold uppercase tracking-[0.2em] mb-6 text-[10px]">Newsletter</h4>
-            <p className="mb-4 text-[10px] text-gray-500">Join the inner circle.</p>
+            <h4 className="text-white font-bold uppercase tracking-[0.2em] mb-6 text-[10px]">{t.footer.news}</h4>
+            <p className="mb-4 text-[10px] text-gray-500">{t.footer.newsSub}</p>
             <div className="flex border-b border-gray-700 pb-2">
-              <input type="email" placeholder="Coming Soon" disabled className="bg-transparent w-full outline-none text-gray-600 cursor-not-allowed" />
+              <input type="email" placeholder={t.footer.coming} disabled className="bg-transparent w-full outline-none text-gray-600 cursor-not-allowed" />
               <button disabled className="text-gray-600"><ArrowRight size={14}/></button>
             </div>
           </div>
 
           <div>
-            <h4 className="text-white font-bold uppercase tracking-[0.2em] mb-6 text-[10px]">Explore</h4>
+            <h4 className="text-white font-bold uppercase tracking-[0.2em] mb-6 text-[10px]">{t.footer.exp}</h4>
             <ul className="space-y-3 text-[11px] tracking-wide">
-              <li><Link to="/vault" className="hover:text-white transition">The Vault</Link></li>
-              <li><button onClick={() => handleScrollToSection('collections')} className="hover:text-white transition">Collections</button></li>
-              <li><a href="#" className="hover:text-white transition">About Jorge</a></li>
-              {/* === ENLACE ACTUALIZADO AQUÍ === */}
+              <li><Link to="/vault" className="hover:text-white transition">{t.nav.vault}</Link></li>
+              <li><button onClick={() => handleScrollToSection('collections')} className="hover:text-white transition">{t.nav.collections}</button></li>
+              <li><button onClick={() => handleFooterLink('/about')} className="hover:text-white transition">{t.footer.about}</button></li>
               <li><button onClick={() => handleFooterLink('/smart-mouse')} className="hover:text-white transition text-left">Smart Mouse Tech</button></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold uppercase tracking-[0.2em] mb-6 text-[10px]">Legal</h4>
+            <h4 className="text-white font-bold uppercase tracking-[0.2em] mb-6 text-[10px]">{t.footer.legal}</h4>
             <ul className="space-y-3 text-[11px] tracking-wide">
-              <li><button onClick={() => handleFooterLink('/terms')} className="hover:text-white transition text-left">Terms & Conditions</button></li>
-              <li><button onClick={() => handleFooterLink('/terms')} className="hover:text-white transition text-left">Privacy Policy</button></li>
-              <li><button onClick={() => handleFooterLink('/terms')} className="hover:text-white transition text-left">Cancellation Policy</button></li>
+              <li><button onClick={() => handleFooterLink('/terms')} className="hover:text-white transition text-left">{t.footer.terms}</button></li>
+              <li><button onClick={() => handleFooterLink('/terms')} className="hover:text-white transition text-left">{t.footer.privacy}</button></li>
+              <li><button onClick={() => handleFooterLink('/terms')} className="hover:text-white transition text-left">{t.footer.cancel}</button></li>
             </ul>
           </div>
         </div>
@@ -398,7 +422,7 @@ const MainLayout = () => {
           <div className="flex flex-col md:flex-row items-center gap-6">
               <a href="https://vallin.studio" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:opacity-70 transition-opacity">
                   <img src="/studio-1.svg" alt="Vallin Studio" className="h-3 w-auto filter brightness-0 invert opacity-60" />
-                  <p>© 2026 All rights reserved.</p>
+                  <p>© 2026 {t.footer.rights}</p>
               </a>
 
               <div className="flex gap-4 text-[8px] opacity-40 hover:opacity-100 transition-opacity">
@@ -413,12 +437,11 @@ const MainLayout = () => {
             rel="noreferrer"
             className="mt-4 md:mt-0 hover:text-white transition cursor-pointer flex items-center gap-2"
           >
-            Independent Affiliate <ArrowRight size={10} />
+            {t.footer.aff} <ArrowRight size={10} />
           </a>
         </div>
       </footer>
 
-      {/* BANNER DE COOKIES (FLOTANTE) */}
       {showCookieBanner && (
         <div className="fixed bottom-0 left-0 w-full bg-zinc-900 border-t border-orange-500/50 p-6 z-[100] shadow-2xl animate-slide-up">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">

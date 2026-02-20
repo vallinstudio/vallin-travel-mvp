@@ -7,6 +7,10 @@ import {
   MapPin, X, Download, Anchor, Info, Clock, ExternalLink, Globe, AlertCircle
 } from 'lucide-react';
 
+// --- IMPORTAMOS CEREBRO Y DICCIONARIO ---
+import { dictionary } from '../dictionary';
+import { useLanguage } from '../useLanguage';
+
 // --- 0. BRANDING COMPONENTS ---
 const BrandName = ({ dark = false }) => (
   <span style={{ fontFamily: "'Syncopate', sans-serif" }} className={`tracking-tighter select-none ${dark ? 'text-[#0f172a]' : 'text-white'}`}>
@@ -24,7 +28,6 @@ const VallinBrand = () => (
 
 const getNextDay = (dateString) => {
     if (!dateString) return "";
-    // Fix zona horaria para asegurar calculo correcto
     const date = new Date(dateString + 'T00:00:00');
     date.setDate(date.getDate() + 1);
     return date.toISOString().split('T')[0];
@@ -41,28 +44,28 @@ const getSeasonTier = (dateString) => {
   return 'tier2'; 
 };
 
-// DURACIONES DINÁMICAS
-const CRUISE_DURATIONS = {
+// DURACIONES DINÁMICAS BILINGÜES
+const getCruiseDurations = (lang) => ({
     caribbean: [
-        { val: 3, label: "3 Nights (Bahamas)" },
-        { val: 4, label: "4 Nights (Bahamas/Caribbean)" },
-        { val: 5, label: "5 Nights (Western Caribbean)" },
-        { val: 7, label: "7 Nights (Eastern/Western Caribbean)" }
+        { val: 3, label: lang === 'es' ? "3 Noches (Bahamas)" : "3 Nights (Bahamas)" },
+        { val: 4, label: lang === 'es' ? "4 Noches (Bahamas/Caribe)" : "4 Nights (Bahamas/Caribbean)" },
+        { val: 5, label: lang === 'es' ? "5 Noches (Caribe)" : "5 Nights (Western Caribbean)" },
+        { val: 7, label: lang === 'es' ? "7 Noches (Caribe)" : "7 Nights (Eastern/Western Caribbean)" }
     ],
     europe: [
-        { val: 7, label: "7 Nights (Mediterranean/Fjords)" },
-        { val: 10, label: "10+ Nights (Grand Europe)" }
+        { val: 7, label: lang === 'es' ? "7 Noches (Mediterráneo)" : "7 Nights (Mediterranean/Fjords)" },
+        { val: 10, label: lang === 'es' ? "10+ Noches (Gran Europa)" : "10+ Nights (Grand Europe)" }
     ],
     alaska: [
-        { val: 5, label: "5 Nights (Alaskan Sampler)" },
-        { val: 7, label: "7 Nights (Dawes Glacier)" },
-        { val: 9, label: "9 Nights (Alaskan Explorer)" }
+        { val: 5, label: lang === 'es' ? "5 Noches (Alaska Sampler)" : "5 Nights (Alaskan Sampler)" },
+        { val: 7, label: lang === 'es' ? "7 Noches (Glaciares)" : "7 Nights (Dawes Glacier)" },
+        { val: 9, label: lang === 'es' ? "9 Noches (Alaska Explorer)" : "9 Nights (Alaskan Explorer)" }
     ],
     hawaii: [
-        { val: 10, label: "10 Nights (Honolulu - Vancouver)" },
-        { val: 13, label: "13 Nights (South Pacific Repositioning)" }
+        { val: 10, label: lang === 'es' ? "10 Noches (Honolulu - Vancouver)" : "10 Nights (Honolulu - Vancouver)" },
+        { val: 13, label: lang === 'es' ? "13 Noches (Pacífico Sur)" : "13 Nights (South Pacific Repositioning)" }
     ]
-};
+});
 
 const EXOTIC_DESTINATIONS = [
     "Australia & New Zealand", "Panama Canal", "Transatlantic",
@@ -138,6 +141,12 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzB
 // --- 2. MOTOR LOGIC ---
 const SmartMouseEngine = () => {
   const navigate = useNavigate();
+
+  // EXTRAEMOS IDIOMA Y DICCIONARIO
+  const { lang, changeLanguage } = useLanguage();
+  const t = dictionary[lang].engine;
+  const tf = dictionary[lang].footer;
+  const CRUISE_DURATIONS = getCruiseDurations(lang);
 
   // STATES
   const [step, setStep] = useState(0); 
@@ -218,7 +227,7 @@ const SmartMouseEngine = () => {
       const newStart = e.target.value;
       setStartDate(newStart);
 
-      // Si estamos en hotel (DVC/Global), auto-rellenar checkout para que el calendario abra en el mes correcto
+      // Si estamos en hotel (DVC/Global), auto-rellenar checkout
       if (newStart && vibe !== 'cruise') {
           const nextDay = getNextDay(newStart);
           setEndDate(nextDay);
@@ -228,7 +237,7 @@ const SmartMouseEngine = () => {
   const handleSearch = () => {
     // CAMINO EXÓTICO
     if (vibe === 'cruise' && subRegion === 'exotic') {
-        if (!exoticDest) return alert("Please select a destination of interest.");
+        if (!exoticDest) return alert(lang === 'es' ? "Por favor selecciona un destino de interés." : "Please select a destination of interest.");
         setSelectedOption({ name: "Custom Portfolio", sub: exoticDest, price: "TBD", desc: "Manual Quote" });
         setStep(4);
         return;
@@ -243,17 +252,19 @@ const SmartMouseEngine = () => {
         const inventory = cruiseInventory[subRegion] || cruiseInventory.caribbean;
         const isValidSeason = inventory.some(ship => ship.validMonths.includes(month));
         if (!isValidSeason) {
-            alert(`Note: Most ${subRegion?.toUpperCase()} cruises do not sail in this month. Please try a different date.`);
+            alert(lang === 'es' 
+              ? `Nota: La mayoría de cruceros en esta región no navegan en este mes. Por favor intenta una fecha distinta.` 
+              : `Note: Most cruises in this region do not sail in this month. Please try a different date.`);
             return;
         }
     } else {
         // VALIDACIÓN HOTELES
         if (!endDate) {
-            alert("Please select a Check-Out date.");
+            alert(lang === 'es' ? "Por favor selecciona una fecha de Check-Out." : "Please select a Check-Out date.");
             return;
         }
         if (new Date(endDate) <= new Date(startDate)) {
-            alert("Check-Out date must be after Check-In date.");
+            alert(lang === 'es' ? "El Check-Out debe ser posterior al Check-In." : "Check-Out date must be after Check-In date.");
             return;
         }
     }
@@ -272,6 +283,7 @@ const SmartMouseEngine = () => {
 
       const reqLower = specialReq.toLowerCase();
       const guests = parseInt(guestCount);
+      const nightsLabel = lang === 'es' ? 'Noches' : 'Nights';
 
       if (vibe === 'dvc') {
         dvcInventory.forEach(resort => {
@@ -288,7 +300,7 @@ const SmartMouseEngine = () => {
               id: resort.id, name: resort.name, sub: subTitle, image: resort.image,
               price: smart, retail: rack, savings: Math.round(((rack-smart)/rack)*100),
               tag: "SMART MOUSE EXCLUSIVE", nights, priority: isPriority,
-              desc: `${nights} Nights • ${roomsNeeded > 1 ? 'Multi-Room' : 'Single Unit'}`
+              desc: `${nights} ${nightsLabel} • ${roomsNeeded > 1 ? 'Multi-Room' : 'Single Unit'}`
             });
           });
         });
@@ -305,7 +317,7 @@ const SmartMouseEngine = () => {
             id: hotel.id, name: hotel.name, sub: subTitle, image: hotel.image,
             price: price, retail: 0, savings: 0,
             tag: "DIRECT RATE", nights, priority: isPriority,
-            desc: `${nights} Nights • ${roomsNeeded > 1 ? 'Multi-Room' : 'Single Unit'}`
+            desc: `${nights} ${nightsLabel} • ${roomsNeeded > 1 ? 'Multi-Room' : 'Single Unit'}`
           });
         });
       }
@@ -327,7 +339,7 @@ const SmartMouseEngine = () => {
                   id: ship.id, name: ship.name, sub: cabin.name + " Stateroom", 
                   image: cabin.img, shipImage: ship.image,
                   price: price, retail: 0, savings: 0,
-                  tag: ship.route, nights: `${nights} Nights`, priority: false,
+                  tag: ship.route, nights: `${nights} ${nightsLabel}`, priority: false,
                   desc: `Total for ${guests} Guests`
                 });
               });
@@ -374,13 +386,22 @@ const SmartMouseEngine = () => {
           phone: magnetData.phone,
           requests: `Requested: ${product}. Action: ${action}. Handle: ${magnetData.handle}`
       });
-      alert(magnetType === 'free' ? "Guide sent! Check your inbox." : "Request received. We will send the secure payment link to your WhatsApp/Email.");
+      alert(magnetType === 'free' 
+          ? (lang === 'es' ? "¡Guía enviada! Revisa tu bandeja de entrada." : "Guide sent! Check your inbox.") 
+          : (lang === 'es' ? "Solicitud recibida. Te enviaremos el link de pago por WhatsApp/Email." : "Request received. We will send the payment link via WhatsApp/Email.")
+      );
       setShowMagnetModal(false);
   };
 
   const finalizeBooking = (contactMethod) => {
-    if (!leadName || !leadEmail || !leadPhone) { alert("Please fill in all Contact Details."); return; }
-    if (!legalCheck) { alert("Please accept the Terms to proceed."); return; }
+    if (!leadName || !leadEmail || !leadPhone) { 
+        alert(lang === 'es' ? "Por favor llena tus datos de contacto." : "Please fill in all Contact Details."); 
+        return; 
+    }
+    if (!legalCheck) { 
+        alert(lang === 'es' ? "Debes aceptar los Términos y Condiciones." : "Please accept the Terms to proceed."); 
+        return; 
+    }
 
     let planDetails = "";
     if (selectedPlan === 'diy') planDetails = conciergeAddOn ? "DIY + CONCIERGE ($150)" : "DIY (Basic) - $0";
@@ -417,8 +438,8 @@ const SmartMouseEngine = () => {
   const renderVibeSelector = () => (
     <div className="max-w-7xl mx-auto px-6 py-12">
       <div className="text-center mb-16">
-        <h1 className="text-3xl md:text-5xl font-serif text-white mb-4">Choose Your <span className="text-[#d4af37]">Adventure</span></h1>
-        <p className="text-slate-400 text-sm">Select an experience to calibrate the pricing engine.</p>
+        <h1 className="text-3xl md:text-5xl font-serif text-white mb-4">{t.title}</h1>
+        <p className="text-slate-400 text-sm">{t.subtitle}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -426,7 +447,7 @@ const SmartMouseEngine = () => {
         <div onClick={() => handleVibeSelect('dvc')} className="relative h-[28rem] rounded-2xl overflow-hidden cursor-pointer border border-slate-800 hover:border-[#d4af37] group transition-all z-10 bg-black">
             <img src="/sm-vibe-dvc.jpg" alt="DVC" className="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700"/>
             <div className="absolute top-4 right-4 bg-[#d4af37] text-[#0f172a] text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg z-10">
-                <BrandName dark={true}/> <span className="font-sans">Exclusive</span>
+                <BrandName dark={true}/> <span className="font-sans">{t.dvcExc}</span>
             </div>
             <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/90 to-transparent p-8 z-10">
                 <div className="text-[#d4af37] mb-2"><Lock size={24}/></div>
@@ -435,9 +456,9 @@ const SmartMouseEngine = () => {
                     <span className="font-sans font-light text-xl tracking-[0.2em] text-slate-200">VACATION CLUB</span>
                 </h3>
                 <p className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mt-2 border-t border-slate-700 pt-2">
-                    Open to Everyone • No Membership Needed
+                    {t.dvcBadge}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">Luxury Villas at Moderate Prices</p>
+                <p className="text-xs text-slate-400 mt-1">{t.dvcDesc}</p>
             </div>
         </div>
 
@@ -466,14 +487,14 @@ const SmartMouseEngine = () => {
                     <span className="font-walt text-4xl block mb-1">Disney</span>
                     <span className="font-sans font-light text-xl tracking-[0.2em] text-slate-200">CRUISE LINE</span>
                 </h3>
-                <p className="text-xs text-slate-300 mt-2">High Seas & Private Islands</p>
+                <p className="text-xs text-slate-300 mt-2">{t.cruiseDesc}</p>
             </div>
         </div>
       </div>
 
       <div className="text-center mt-12">
           <button onClick={() => window.open('https://wa.me/525655857811', '_blank')} className="text-slate-400 hover:text-[#d4af37] text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors">
-              <Phone size={14}/> Not sure? Chat with an Expert now via WhatsApp
+              <Phone size={14}/> {t.whatsappHelp}
           </button>
       </div>
     </div>
@@ -481,8 +502,8 @@ const SmartMouseEngine = () => {
 
   const renderSubRegionSelector = () => (
     <div className="max-w-5xl mx-auto px-6 py-20 text-center animate-in fade-in zoom-in duration-500">
-        <button onClick={() => setStep(0)} className="text-slate-500 hover:text-white text-xs flex items-center gap-1 mx-auto mb-10"><ArrowRight className="rotate-180" size={12}/> RETURN TO VIBES</button>
-        <h2 className="text-3xl md:text-5xl font-serif text-white mb-12">Where is the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Magic</span> happening?</h2>
+        <button onClick={() => setStep(0)} className="text-slate-500 hover:text-white text-xs flex items-center gap-1 mx-auto mb-10"><ArrowRight className="rotate-180" size={12}/> {t.returnVibes}</button>
+        <h2 className="text-3xl md:text-5xl font-serif text-white mb-12">{t.whereMagic}</h2>
 
         <div className="flex flex-wrap justify-center gap-4">
             {vibe === 'global' ? 
@@ -493,7 +514,7 @@ const SmartMouseEngine = () => {
                 )) : 
                 ['Caribbean', 'Europe', 'Alaska', 'Hawaii', 'Exotic / Global'].map(r => (
                     <button key={r} onClick={() => r === 'Exotic / Global' ? handleSubRegionSelect('exotic') : handleSubRegionSelect(r.toLowerCase())} className={`p-8 border border-slate-700 rounded-xl hover:bg-slate-800 hover:border-[#d4af37] transition text-white font-bold font-serif w-full md:w-auto min-w-[200px] ${r === 'Exotic / Global' ? 'text-sm md:text-base bg-slate-900 border-[#d4af37]/30 text-[#d4af37]' : 'text-lg'}`}>
-                        {r}
+                        {r === 'Exotic / Global' ? (lang === 'es' ? 'Exótico / Global' : r) : (lang === 'es' && r === 'Caribbean' ? 'Caribe' : r)}
                     </button>
                 ))
             }
@@ -503,22 +524,21 @@ const SmartMouseEngine = () => {
 
   const renderInputs = () => (
     <div className="max-w-4xl mx-auto px-6 py-20 animate-in slide-in-from-right duration-500">
-      <button onClick={() => setStep(vibe === 'dvc' ? 0 : 0.5)} className="text-slate-500 hover:text-white text-xs flex items-center gap-1 mb-8"><ArrowRight className="rotate-180" size={12}/> BACK</button>
+      <button onClick={() => setStep(vibe === 'dvc' ? 0 : 0.5)} className="text-slate-500 hover:text-white text-xs flex items-center gap-1 mb-8"><ArrowRight className="rotate-180" size={12}/> {t.back}</button>
 
       <div className="bg-[#1e293b] p-8 md:p-12 rounded-3xl border border-slate-700 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-32 bg-[#d4af37] opacity-5 blur-[100px] rounded-full pointer-events-none"></div>
 
         <div className="mb-8">
             <h2 className="text-3xl font-serif text-white flex items-center gap-3">
-            {vibe === 'dvc' && <><Lock className="text-[#d4af37]"/> DVC Arbitrage Engine</>}
-            {vibe === 'global' && <><Castle className="text-blue-400"/> Global Parks Config</>}
-            {vibe === 'cruise' && <><Ship className="text-red-400"/> Cruise Line Config</>}
+            {vibe === 'dvc' && <><Lock className="text-[#d4af37]"/> {t.dvcTitle}</>}
+            {vibe === 'global' && <><Castle className="text-blue-400"/> {t.globalTitle}</>}
+            {vibe === 'cruise' && <><Ship className="text-red-400"/> {t.cruiseTitle}</>}
             </h2>
             <p className="text-xs text-slate-400 mt-2 uppercase tracking-widest pl-1">
                 {subRegion === 'exotic' 
-                    ? "Tell us about your dream destination. Manual verification required."
-                    : (vibe === 'dvc' ? "Configure parameters to unlock wholesale pricing." 
-                    : "Select dates to access our verified inventory.")}
+                    ? t.exoticConfig
+                    : (vibe === 'dvc' ? t.dvcConfig : (vibe === 'cruise' ? t.cruiseConfig : t.globalConfig))}
             </p>
         </div>
 
@@ -527,22 +547,22 @@ const SmartMouseEngine = () => {
             <div onClick={switchToDVC} className="mb-6 bg-[#d4af37]/10 border border-[#d4af37]/30 p-4 rounded-lg flex items-center gap-3 animate-in fade-in cursor-pointer hover:bg-[#d4af37]/20 transition group">
                 <Info size={18} className="text-[#d4af37] shrink-0"/>
                 <div className="flex-1">
-                    <p className="text-xs font-bold text-[#d4af37] mb-1">Pro Tip for Large Groups</p>
-                    <p className="text-[10px] text-slate-300">For groups of 5+, DVC Villas (1BR/2BR) offer better value and space.</p>
+                    <p className="text-xs font-bold text-[#d4af37] mb-1">{t.proTip}</p>
+                    <p className="text-[10px] text-slate-300">{t.proTipDesc}</p>
                 </div>
                 <div className="text-[10px] font-bold text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                    Click to Switch <ExternalLink size={10}/>
+                    {t.clickSwitch} <ExternalLink size={10}/>
                 </div>
             </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
-            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">Travel Party</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">{t.party}</label>
             <div className="relative cursor-pointer">
               <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18}/>
               <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="w-full bg-[#0f172a] border border-slate-600 rounded-xl px-12 text-white text-base sm:text-sm focus:border-[#d4af37] outline-none cursor-pointer appearance-none h-14">
-                {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => <option key={n} value={n}>{n} Guests</option>)}
+                {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => <option key={n} value={n}>{n} {t.guests}</option>)}
               </select>
             </div>
           </div>
@@ -550,11 +570,11 @@ const SmartMouseEngine = () => {
           {/* LOGICA EXOTICA vs NORMAL */}
           {subRegion === 'exotic' ? (
               <div className="group">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">Select Interest</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">{t.selInterest}</label>
                   <div className="relative cursor-pointer w-full">
                       <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" size={18}/>
                       <select value={exoticDest} onChange={(e) => setExoticDest(e.target.value)} className="w-full bg-[#0f172a] border border-slate-600 rounded-xl px-12 text-white text-base sm:text-sm focus:border-[#d4af37] outline-none cursor-pointer appearance-none h-14">
-                          <option value="">Select Destination...</option>
+                          <option value="">{t.selDest}</option>
                           {EXOTIC_DESTINATIONS.map(d => <option key={d} value={d}>{d}</option>)}
                       </select>
                   </div>
@@ -562,7 +582,7 @@ const SmartMouseEngine = () => {
           ) : (
             <>
                 <div className="group">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">{vibe === 'cruise' ? 'Sail Date (Approx)' : 'Check-In'}</label>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">{vibe === 'cruise' ? t.sailDate : t.checkIn}</label>
                     <div className="relative cursor-pointer w-full" onClick={() => startPickerRef.current.showPicker()}>
                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" size={18}/>
                     <input 
@@ -579,7 +599,7 @@ const SmartMouseEngine = () => {
 
                 {vibe !== 'cruise' ? (
                     <div className="group">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">Check-Out</label>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">{t.checkOut}</label>
                     <div className="relative cursor-pointer w-full" onClick={() => endPickerRef.current.showPicker()}>
                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" size={18}/>
                         <input 
@@ -595,7 +615,7 @@ const SmartMouseEngine = () => {
                     </div>
                 ) : (
                     <div className="group">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">Itinerary Length</label>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">{t.length}</label>
                         <div className="relative cursor-pointer w-full">
                             <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" size={18}/>
                             <select value={cruiseNights} onChange={(e) => setCruiseNights(e.target.value)} className="w-full bg-[#0f172a] border border-slate-600 rounded-xl px-12 text-white text-base sm:text-sm focus:border-[#d4af37] outline-none cursor-pointer appearance-none h-14">
@@ -610,13 +630,13 @@ const SmartMouseEngine = () => {
           )}
 
           <div className={`${vibe === 'cruise' || subRegion === 'exotic' ? 'md:col-span-1' : 'md:col-span-1'}`}>
-             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">Special Requests</label>
-             <input type="text" placeholder={vibe === 'cruise' ? "e.g. Celebration, First Time..." : "e.g. Animal Kingdom Lodge, Near Epcot..."} value={specialReq} onChange={(e) => setSpecialReq(e.target.value)} className="w-full bg-[#0f172a] border border-slate-600 rounded-xl py-3.5 px-4 text-white text-base sm:text-sm focus:border-[#d4af37] outline-none h-14"/>
+             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-3 tracking-wider">{t.requests}</label>
+             <input type="text" placeholder={vibe === 'cruise' ? t.reqCruisePl : t.reqHotelPl} value={specialReq} onChange={(e) => setSpecialReq(e.target.value)} className="w-full bg-[#0f172a] border border-slate-600 rounded-xl py-3.5 px-4 text-white text-base sm:text-sm focus:border-[#d4af37] outline-none h-14"/>
           </div>
         </div>
 
         <button onClick={handleSearch} className="w-full bg-gradient-to-r from-[#d4af37] to-yellow-700 text-[#0f172a] font-bold py-5 rounded-xl text-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition transform hover:-translate-y-1 flex items-center justify-center gap-3">
-          {subRegion === 'exotic' ? <><FileText size={20}/> REQUEST PORTFOLIO</> : <><Sparkles size={20}/> ACTIVATE ENGINE</>}
+          {subRegion === 'exotic' ? <><FileText size={20}/> {t.reqPort}</> : <><Sparkles size={20}/> {t.actEngine}</>}
         </button>
       </div>
     </div>
@@ -626,18 +646,18 @@ const SmartMouseEngine = () => {
     <div className="max-w-6xl mx-auto px-4 py-12 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
         <div>
-          <button onClick={() => setStep(1)} className="text-xs text-slate-500 hover:text-white mb-2 flex items-center gap-1"><ArrowRight className="rotate-180" size={12}/> EDIT PARAMETERS</button>
-          <h2 className="text-3xl font-serif text-white">Smart Opportunities</h2>
+          <button onClick={() => setStep(1)} className="text-xs text-slate-500 hover:text-white mb-2 flex items-center gap-1"><ArrowRight className="rotate-180" size={12}/> {t.editParams}</button>
+          <h2 className="text-3xl font-serif text-white">{t.smartOpps}</h2>
         </div>
 
         <div className="flex gap-2">
             {vibe === 'cruise' && (
                 <div className="px-4 py-2 border border-[#d4af37]/30 bg-[#d4af37]/10 rounded-full text-[#d4af37] text-[10px] font-bold flex items-center gap-2">
-                    <Anchor size={12}/> Ask about Land & Sea
+                    <Anchor size={12}/> {t.askLandSea}
                 </div>
             )}
             <button onClick={handleCustomRequest} className="bg-white/10 border border-white/20 text-white text-xs px-4 py-2 rounded-full hover:bg-white hover:text-black transition">
-                Can't find your dream? Request Custom Quote
+                {t.cantFind}
             </button>
         </div>
       </div>
@@ -648,7 +668,7 @@ const SmartMouseEngine = () => {
             <div className="md:w-1/3 relative h-56 md:h-auto overflow-hidden">
               <img src={r.image} alt={r.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
               <div className="absolute top-3 left-3 bg-[#0f172a] text-[#d4af37] text-[10px] font-bold px-3 py-1 uppercase tracking-wider shadow-lg">{r.tag}</div>
-              {r.priority && <div className="absolute bottom-3 left-3 bg-green-600 text-white text-[9px] font-bold px-2 py-1 rounded">MATCHES REQUEST</div>}
+              {r.priority && <div className="absolute bottom-3 left-3 bg-green-600 text-white text-[9px] font-bold px-2 py-1 rounded">{t.matchesReq}</div>}
             </div>
             <div className="flex-1 p-6 md:p-8 flex flex-col justify-between">
 
@@ -665,24 +685,24 @@ const SmartMouseEngine = () => {
               </div>
 
               <div className="flex gap-4 text-xs text-slate-600 border-b border-slate-100 pb-4 mb-4">
-                   <span className="flex items-center gap-1"><Users size={14}/> {guestCount} Guests</span>
+                   <span className="flex items-center gap-1"><Users size={14}/> {guestCount} {t.guests}</span>
                    <span className="flex items-center gap-1"><Calendar size={14}/> {r.desc}</span>
                    <span className="flex items-center gap-1"><MapPin size={14}/> {subRegion?.toUpperCase()}</span>
               </div>
 
               <div className="flex items-end justify-between">
                 <div>
-                  {r.savings > 0 && <p className="text-xs text-red-400 line-through font-bold">Rack Rate: ${r.retail.toLocaleString()}</p>}
+                  {r.savings > 0 && <p className="text-xs text-red-400 line-through font-bold">{t.rackRate} ${r.retail.toLocaleString()}</p>}
                   <div className="flex items-baseline gap-1">
-                      <span className="text-sm text-slate-400">{vibe === 'cruise' ? 'From' : 'Est. Quote'}</span>
+                      <span className="text-sm text-slate-400">{t.estQuote}</span>
                       <p className="text-4xl font-bold text-[#0f172a]">${r.price.toLocaleString()}</p>
                   </div>
-                  <p className="text-[9px] text-slate-400">Subject to availability & dynamic pricing</p>
+                  <p className="text-[9px] text-slate-400">{t.subjAvail}</p>
                 </div>
                 <div className="text-right">
-                  {r.savings > 0 && <span className="block text-green-600 font-bold text-xs mb-2 bg-green-50 px-2 py-1 rounded">Save {r.savings}%</span>}
+                  {r.savings > 0 && <span className="block text-green-600 font-bold text-xs mb-2 bg-green-50 px-2 py-1 rounded">{t.savePerc} {r.savings}%</span>}
                   <button onClick={() => handleBookNow(r)} className="bg-[#0f172a] text-white px-8 py-4 rounded-lg text-xs font-bold hover:bg-[#d4af37] hover:text-black transition shadow-xl hover:shadow-2xl">
-                    SELECT PROPERTY
+                    {t.selectProp}
                   </button>
                 </div>
               </div>
@@ -699,10 +719,10 @@ const SmartMouseEngine = () => {
       {/* LEFT: PLANS (7 Cols) */}
       <div className="lg:col-span-7 space-y-8">
         <div>
-           <button onClick={() => setStep(3)} className="text-xs text-slate-500 hover:text-white mb-4 flex items-center gap-1"><ArrowRight className="rotate-180" size={12}/> CHANGE PROPERTY</button>
-           <h2 className="text-3xl font-serif text-white mb-2">Service Level Selection</h2>
-           <p className="text-slate-400 text-sm">How should we orchestrate your magic? Choose your planning tier.</p>
-           <p className="text-[10px] text-[#d4af37] font-bold mt-1">No payment required now. You pay only after itinerary approval.</p>
+           <button onClick={() => setStep(3)} className="text-xs text-slate-500 hover:text-white mb-4 flex items-center gap-1"><ArrowRight className="rotate-180" size={12}/> {t.changeProp}</button>
+           <h2 className="text-3xl font-serif text-white mb-2">{t.srvLevel}</h2>
+           <p className="text-slate-400 text-sm">{t.srvDesc}</p>
+           <p className="text-[10px] text-[#d4af37] font-bold mt-1">{t.noPay}</p>
         </div>
 
         <div className="space-y-4">
@@ -710,19 +730,19 @@ const SmartMouseEngine = () => {
            <div onClick={() => { setSelectedPlan('diy'); setConciergeAddOn(false); }} className={`p-6 rounded-2xl border-2 cursor-pointer transition flex items-center gap-5 ${selectedPlan === 'diy' ? 'border-[#d4af37] bg-[#1e293b]' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
               <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-slate-300"><FileText size={20}/></div>
               <div className="flex-1">
-                 <h4 className="font-bold text-white">Basic Route (DIY)</h4>
-                 <p className="text-[10px] text-slate-400">Booking Only. No planning services included.</p>
+                 <h4 className="font-bold text-white">{t.diyTitle}</h4>
+                 <p className="text-[10px] text-slate-400">{t.diyDesc}</p>
               </div>
-              <span className="text-green-400 font-bold text-sm">$0 Fee</span>
+              <span className="text-green-400 font-bold text-sm">$0 {t.fee}</span>
            </div>
 
            {/* SMART MOUSE */}
            <div onClick={() => { setSelectedPlan('smart'); setConciergeAddOn(false); }} className={`p-6 rounded-2xl border-2 cursor-pointer transition flex items-center gap-5 relative overflow-hidden ${selectedPlan === 'smart' ? 'border-[#d4af37] bg-[#1e293b] shadow-[0_0_30px_rgba(212,175,55,0.1)]' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-              <div className="absolute top-0 right-0 bg-[#d4af37] text-[#0f172a] text-[9px] font-bold px-3 py-1">MOST POPULAR</div>
+              <div className="absolute top-0 right-0 bg-[#d4af37] text-[#0f172a] text-[9px] font-bold px-3 py-1">{t.mostPop}</div>
               <div className="w-12 h-12 rounded-full bg-[#d4af37] flex items-center justify-center text-[#0f172a]"><Sparkles size={24}/></div>
               <div className="flex-1">
-                 <h4 className="font-bold text-white">Smart Mouse Protocol</h4>
-                 <p className="text-[10px] text-slate-300">Full Planning (Dining, Genie+, Strategy) for bookings made with us.</p>
+                 <h4 className="font-bold text-white">{t.smpTitle}</h4>
+                 <p className="text-[10px] text-slate-300">{t.smpDesc}</p>
               </div>
               <div className="text-right">
                  <span className="text-[#d4af37] font-bold text-lg block">$150</span>
@@ -733,8 +753,8 @@ const SmartMouseEngine = () => {
            <div onClick={() => { setSelectedPlan('concierge'); setConciergeAddOn(false); }} className={`p-6 rounded-2xl border-2 cursor-pointer transition flex items-center gap-5 ${selectedPlan === 'concierge' ? 'border-[#d4af37] bg-[#1e293b]' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
               <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-slate-300"><Calendar size={20}/></div>
               <div className="flex-1">
-                 <h4 className="font-bold text-white">Planning for Existing Bookings</h4>
-                 <p className="text-[10px] text-slate-400">"I already have a booking confirmation, but I need professional planning."</p>
+                 <h4 className="font-bold text-white">{t.concTitle}</h4>
+                 <p className="text-[10px] text-slate-400">{t.concDesc}</p>
               </div>
               <span className="text-white font-bold text-sm">$200</span>
            </div>
@@ -742,17 +762,17 @@ const SmartMouseEngine = () => {
 
         {/* RESOURCES */}
         <div className="pt-8 border-t border-slate-800">
-           <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Self-Service Resources</h4>
+           <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">{t.selfSrv}</h4>
            <div className="grid grid-cols-2 gap-4">
               <div onClick={() => { setMagnetType('free'); setShowMagnetModal(true); }} className="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center cursor-pointer hover:border-slate-500 transition group">
                  <BookOpen className="mx-auto text-slate-400 mb-2 group-hover:text-white" size={20}/>
-                 <p className="text-xs font-bold text-white">Basic Guide</p>
-                 <span className="text-[10px] text-green-500 font-bold">FREE DOWNLOAD</span>
+                 <p className="text-xs font-bold text-white">{t.freeGuide}</p>
+                 <span className="text-[10px] text-green-500 font-bold">{t.freeDown}</span>
               </div>
               <div onClick={() => { setMagnetType('paid'); setShowMagnetModal(true); }} className="bg-slate-900 border border-[#d4af37]/30 p-4 rounded-xl text-center cursor-pointer hover:bg-slate-800 transition relative overflow-hidden group">
-                 <div className="absolute top-0 right-0 bg-red-600 text-white text-[8px] font-bold px-2 py-0.5">OFFER</div>
+                 <div className="absolute top-0 right-0 bg-red-600 text-white text-[8px] font-bold px-2 py-0.5">{t.offer}</div>
                  <Sparkles className="mx-auto text-[#d4af37] mb-2 group-hover:animate-spin" size={20}/>
-                 <p className="text-xs font-bold text-white">Insider Secrets</p>
+                 <p className="text-xs font-bold text-white">{t.insSecrets}</p>
                  <div className="flex justify-center gap-2 items-center mt-1">
                     <span className="text-[9px] text-slate-500 line-through">$49</span>
                     <span className="text-[10px] text-[#d4af37] font-bold">$19</span>
@@ -766,27 +786,27 @@ const SmartMouseEngine = () => {
       <div className="lg:col-span-5 bg-white rounded-3xl p-8 text-[#0f172a] h-fit shadow-2xl relative overflow-hidden">
          <div className="absolute top-0 left-0 w-full h-2 bg-[#d4af37]"></div>
 
-         <h3 className="font-serif font-bold text-xl mb-6 text-center">Confirm Request</h3>
+         <h3 className="font-serif font-bold text-xl mb-6 text-center">{t.confirmReq}</h3>
 
          <div className="bg-slate-50 p-4 rounded-xl mb-6 text-xs border border-slate-200 space-y-2">
             <div className="flex justify-between font-bold">
-                <span>Property:</span>
+                <span>{t.property}</span>
                 <span>{selectedOption.name}</span>
             </div>
             <div className="flex justify-between text-slate-500">
-                <span>Unit:</span>
+                <span>{t.unit}</span>
                 <span>{selectedOption.sub}</span>
             </div>
             <div className="flex justify-between text-slate-500">
-                <span>Travelers:</span>
-                <span>{guestCount} Guests</span>
+                <span>{t.travelers}</span>
+                <span>{guestCount} {t.guests}</span>
             </div>
             <div className="flex justify-between text-slate-500 border-b border-slate-200 pb-2">
-                <span>Dates:</span>
-                <span>{subRegion === 'exotic' ? "Flexible / TBD" : (vibe === 'cruise' ? `${startDate} (${cruiseNights} Nights)` : `${startDate} / ${endDate}`)}</span>
+                <span>{t.dates}</span>
+                <span>{subRegion === 'exotic' ? "Flexible" : (vibe === 'cruise' ? `${startDate} (${cruiseNights} ${lang === 'es'?'Noches':'Nights'})` : `${startDate} / ${endDate}`)}</span>
             </div>
             <div className="flex justify-between font-bold pt-1 text-lg">
-                <span>Est. Quote:</span>
+                <span>{t.estQuote}</span>
                 <span>{selectedOption.price === 'TBD' ? 'Manual Quote' : `$${selectedOption.price.toLocaleString()}`}</span>
             </div>
          </div>
@@ -794,7 +814,7 @@ const SmartMouseEngine = () => {
          {/* LEGAL DISCLAIMER */}
          <div className="mb-6 flex gap-2 items-start bg-yellow-50 p-3 rounded text-[9px] text-yellow-800 border border-yellow-100">
              <AlertCircle size={14} className="shrink-0 mt-0.5"/>
-             <p>Quotes are illustrative based on live market data. Final availability and pricing are subject to venue confirmation upon booking.</p>
+             <p>{t.legalDisc}</p>
          </div>
 
          {/* UPSELL DIY */}
@@ -805,8 +825,8 @@ const SmartMouseEngine = () => {
                      {conciergeAddOn && <Check size={12} strokeWidth={4}/>}
                   </div>
                   <div>
-                     <p className={`text-xs font-bold ${conciergeAddOn ? 'text-white' : 'text-slate-800'}`}>Add Full Concierge</p>
-                     <p className="text-[9px]">Changed your mind? Add Strategy.</p>
+                     <p className={`text-xs font-bold ${conciergeAddOn ? 'text-white' : 'text-slate-800'}`}>{t.addConcierge}</p>
+                     <p className="text-[9px]">{t.addConciergeSub}</p>
                   </div>
                </div>
                <div className="text-right">
@@ -819,24 +839,20 @@ const SmartMouseEngine = () => {
          {/* FORM DE CONTACTO */}
          <div className="space-y-4">
             <div>
-               <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Full Name *</label>
-               <input required type="text" value={leadName} onChange={(e) => setLeadName(e.target.value)} placeholder="Full Legal Name" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-sm outline-none focus:border-[#0f172a] transition max-w-full"/>
+               <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">{t.fullName}</label>
+               <input required type="text" value={leadName} onChange={(e) => setLeadName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-sm outline-none focus:border-[#0f172a] transition max-w-full"/>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                   <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Email *</label>
+                   <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">{t.emailInput}</label>
                    <input required type="email" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} placeholder="email@domain.com" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-sm outline-none focus:border-[#0f172a] transition max-w-full"/>
                 </div>
                 <div>
-                   <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Phone *</label>
+                   <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">{t.phoneInput}</label>
                    <div className="flex gap-2">
                       <select value={countryCode} onChange={(e) => setCountryCode(e.target.value)} className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-sm outline-none focus:border-[#0f172a] w-20 text-center appearance-none cursor-pointer">
-                         <option value="+52">🇲🇽</option>
-                         <option value="+1">🇺🇸</option>
-                         <option value="+34">🇪🇸</option>
-                         <option value="+44">🇬🇧</option>
-                         <option value="+33">🇫🇷</option>
+                         <option value="+52">🇲🇽</option><option value="+1">🇺🇸</option><option value="+34">🇪🇸</option><option value="+44">🇬🇧</option>
                       </select>
                       <input required type="tel" value={leadPhone} onChange={(e) => setLeadPhone(e.target.value)} placeholder="10 digits" className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-lg text-sm outline-none focus:border-[#0f172a] transition max-w-full"/>
                    </div>
@@ -846,18 +862,18 @@ const SmartMouseEngine = () => {
             <div className="flex items-start gap-2 py-2">
                 <input type="checkbox" checked={insuranceCheck} onChange={(e) => setInsuranceCheck(e.target.checked)} className="mt-1 accent-[#d4af37]"/>
                 <div>
-                    <p className="text-xs font-bold text-slate-700">I am interested in Travel Protection</p>
-                    <p className="text-[9px] text-slate-400">Highly Recommended. We will quote this for you.</p>
+                    <p className="text-xs font-bold text-slate-700">{t.insurTitle}</p>
+                    <p className="text-[9px] text-slate-400">{t.insurSub}</p>
                 </div>
             </div>
 
             <div className="flex items-center gap-2 mb-4 border-t border-slate-100 pt-4">
                <input type="checkbox" checked={legalCheck} onChange={(e) => setLegalCheck(e.target.checked)} className="accent-[#d4af37] cursor-pointer"/>
-               <label onClick={() => setLegalCheck(!legalCheck)} className="text-[10px] text-slate-500 cursor-pointer hover:text-black">I accept the Terms & Conditions.</label>
+               <label onClick={() => setLegalCheck(!legalCheck)} className="text-[10px] text-slate-500 cursor-pointer hover:text-black">{t.termsCheck}</label>
             </div>
 
             <button onClick={() => finalizeBooking('Web Form')} className="w-full bg-[#0f172a] text-white py-4 rounded-xl text-sm font-bold hover:bg-[#d4af37] hover:text-[#0f172a] transition shadow-lg flex items-center justify-center gap-2">
-                CONFIRM REQUEST <ArrowRight size={16}/>
+                {t.confBtn} <ArrowRight size={16}/>
             </button>
          </div>
       </div>
@@ -872,12 +888,10 @@ const SmartMouseEngine = () => {
               <div className="text-center mb-6">
                   <div className="bg-[#d4af37] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-[#0f172a]"><Download size={24}/></div>
                   <h3 className="text-2xl font-serif text-white">
-                      {magnetType === 'free' ? "Unlock the Guide" : "Get Insider Secrets"}
+                      {magnetType === 'free' ? t.guideUnlock : t.insiderUnlock}
                   </h3>
                   <p className="text-xs text-slate-400 mt-2">
-                      {magnetType === 'free' 
-                        ? "Enter your details to receive the PDF directly." 
-                        : "We will send a secure payment link to your preferred contact."}
+                      {magnetType === 'free' ? t.guideDesc : t.insiderDesc}
                   </p>
               </div>
               <form onSubmit={handleMagnetSubmit} className="space-y-4">
@@ -885,7 +899,7 @@ const SmartMouseEngine = () => {
                   <input required type="email" placeholder="Email Address" value={magnetData.email} onChange={e => setMagnetData({...magnetData, email: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 rounded p-3 text-white text-sm focus:border-[#d4af37] outline-none"/>
                   <input required type="tel" placeholder="Phone Number" value={magnetData.phone} onChange={e => setMagnetData({...magnetData, phone: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 rounded p-3 text-white text-sm focus:border-[#d4af37] outline-none"/>
                   <button type="submit" className="w-full bg-[#d4af37] text-black font-bold py-3 rounded hover:bg-white transition">
-                      {magnetType === 'free' ? "SEND IT TO ME" : "REQUEST PAYMENT LINK"}
+                      {magnetType === 'free' ? t.sendMe : t.reqLink}
                   </button>
               </form>
           </div>
@@ -896,15 +910,34 @@ const SmartMouseEngine = () => {
     <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans selection:bg-[#d4af37] selection:text-[#0f172a]">
       {showMagnetModal && renderMagnetModal()}
 
-      {/* HEADER */}
+      {/* HEADER BILINGÜE DEL MOTOR */}
       <nav className="border-b border-slate-800 bg-[#0f172a]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setStep(0)}>
             <div className="group-hover:scale-105 transition-transform"><BrandName /></div>
           </div>
-          <button onClick={() => navigate('/')} className="text-[10px] font-bold text-slate-500 hover:text-white transition tracking-widest border border-slate-800 px-4 py-2 rounded hover:border-slate-500">
-            EXIT ENGINE
-          </button>
+
+          <div className="flex items-center gap-4">
+              <button 
+                  onClick={() => changeLanguage(lang === 'en' ? 'es' : 'en')} 
+                  className="text-[10px] font-bold text-slate-400 hover:text-white transition uppercase tracking-widest border border-slate-800 hover:border-slate-500 px-3 py-1.5 rounded"
+              >
+                {lang === 'en' ? 'ES' : 'EN'}
+              </button>
+              <button 
+                  onClick={() => navigate('/')} 
+                  className="text-[10px] font-bold text-slate-400 hover:text-white transition tracking-widest border border-slate-800 px-4 py-2 rounded hover:border-slate-500 hidden sm:block"
+              >
+                EXIT ENGINE
+              </button>
+              <button 
+                  onClick={() => navigate('/')} 
+                  className="text-slate-400 hover:text-white transition sm:hidden"
+              >
+                <X size={20} />
+              </button>
+          </div>
+
         </div>
       </nav>
 
@@ -915,8 +948,8 @@ const SmartMouseEngine = () => {
       {step === 2 && (
         <div className="min-h-[60vh] flex flex-col items-center justify-center">
            <div className="w-16 h-16 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin mb-6"></div>
-           <h3 className="text-2xl font-serif text-white animate-pulse">Calculating Magic...</h3>
-           <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest">Accessing 2026 Inventory</p>
+           <h3 className="text-2xl font-serif text-white animate-pulse">{t.calc}</h3>
+           <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest">{t.accInv}</p>
         </div>
       )}
       {step === 3 && renderResults()}
@@ -928,16 +961,16 @@ const SmartMouseEngine = () => {
            <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white mb-8 shadow-[0_0_50px_rgba(34,197,94,0.5)]">
               <Check size={48} className="animate-bounce"/>
            </div>
-           <h2 className="text-4xl md:text-5xl font-serif text-white mb-4">Request Received</h2>
+           <h2 className="text-4xl md:text-5xl font-serif text-white mb-4">{t.reqRec}</h2>
            <p className="text-slate-400 max-w-md mx-auto leading-relaxed mb-10 text-sm">
-              We have received your configuration securely. A certified consultant will review your request and contact you via Email/WhatsApp shortly.
+              {t.reqRecDesc}
            </p>
 
            <div className="flex flex-col gap-4 w-full max-w-sm">
                <button onClick={() => window.open('https://wa.me/525655857811', '_blank')} className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg">
-                   <Phone size={18}/> Chat on WhatsApp (Optional)
+                   <Phone size={18}/> {lang === 'es' ? 'Chat por WhatsApp (Opcional)' : 'Chat on WhatsApp (Optional)'}
                </button>
-               <button onClick={() => setStep(0)} className="text-xs text-slate-500 hover:text-white mt-4 transition">Start New Search</button>
+               <button onClick={() => setStep(0)} className="text-xs text-slate-500 hover:text-white mt-4 transition">{t.startNew}</button>
            </div>
         </div>
       )}
@@ -946,7 +979,7 @@ const SmartMouseEngine = () => {
       <footer className="border-t border-slate-800 py-8 px-4 mt-auto bg-[#020617]">
          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-600">
             <p>Smart Mouse is an independent engine powered by <VallinBrand/>.</p>
-            <p>Not affiliated with The Walt Disney Company. All rights reserved 2026.</p>
+            <p>Not affiliated with The Walt Disney Company. {tf.rights}</p>
          </div>
       </footer>
 

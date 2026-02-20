@@ -4,20 +4,23 @@ import { Star, Zap, MapPin } from 'lucide-react';
 import NextJourney from '../components/NextJourney';
 import ScrollIndicator from '../components/ScrollIndicator';
 
-// --- DATOS ESTÁTICOS ---
-const hubs = {
+// --- IMPORTAMOS EL DICCIONARIO ---
+import { dictionary } from '../dictionary';
+
+// --- DATOS DINÁMICOS POR IDIOMA ---
+const getHubs = (td) => ({
   clinics: {
     id: "clinics",
     label: "Medical Spas",
-    title: "The Science of Youth",
-    subtitle: "Switzerland & Spain",
-    description: "World-leading medical spas. Longevity, detox and cellular rejuvenation.",
+    title: td.cliTitle,
+    subtitle: td.cliSub,
+    description: td.cliDesc,
     heroImage: "/well-switzerland.jpg", 
     brands: [
       {
         brandPart: "Clinique", fontClass: "font-serif", locPart: "La Prairie",
-        highlight: "Montreux, Switzerland. The gold standard in revitalization.",
-        vibe: "Clinical Luxury",
+        highlight: td.cliHL1,
+        vibe: td.cliVibe1,
         items: [
            { name: "Revitalization Program", media: "/well-laprairie.jpg" },
            { name: "Master Detox", media: "/well-detox.jpg" }
@@ -25,8 +28,8 @@ const hubs = {
       },
       {
         brandPart: "SHA", fontClass: "font-serif", locPart: "Wellness",
-        highlight: "Spain & Mexico. Integrative medicine and nutrition.",
-        vibe: "Transformative",
+        highlight: td.cliHL2,
+        vibe: td.cliVibe2,
         items: [
            { name: "SHA Spain", media: "/well-sha-spain.jpg" },
            { name: "SHA Mexico", media: "/well-sha-mexico.jpg" }
@@ -38,20 +41,20 @@ const hubs = {
       { name: "Lanserhof", image: "/well-lanserhof.jpg" },
       { name: "Villa Stephanie", image: "/well-stephanie.jpg" }
     ],
-    vipPromise: "Pre-arrival Medical Consultations. Discrete Transfers."
+    vipPromise: td.cliVIP
   },
   sanctuaries: {
     id: "sanctuaries",
     label: "Sanctuaries",
-    title: "Desert & Jungle",
-    subtitle: "USA & Asia",
-    description: "Reconnecting with the self in the world's most dramatic landscapes.",
+    title: td.sanTitle,
+    subtitle: td.sanSub,
+    description: td.sanDesc,
     heroImage: "/well-amangiri.jpg", 
     brands: [
       {
         brandPart: "Aman", fontClass: "font-serif", locPart: "Giri",
-        highlight: "Utah Desert. Silence and space in the canyonlands.",
-        vibe: "Ethereal",
+        highlight: td.sanHL1,
+        vibe: td.sanVibe1,
         items: [
            { name: "Amangiri", media: "/well-amangiri-resort.jpg" },
            { name: "Camp Sarika", media: "/well-sarika.jpg" }
@@ -59,8 +62,8 @@ const hubs = {
       },
       {
         brandPart: "COMO", fontClass: "font-serif", locPart: "Shambhala",
-        highlight: "Bali. The jungle estate that defined wellness.",
-        vibe: "Holistic",
+        highlight: td.sanHL2,
+        vibe: td.sanVibe2,
         items: [
            { name: "COMO Shambhala", media: "/well-como.jpg" },
            { name: "Uma Ubud", media: "/well-uma.jpg" }
@@ -72,12 +75,17 @@ const hubs = {
        { name: "Six Senses Douro", image: "/well-douro.jpg" },
        { name: "Miraval Arizona", image: "/well-miraval.jpg" }
     ],
-    vipPromise: "Private Yoga Shalas. Custom Menu Design."
+    vipPromise: td.sanVIP
   }
-};
+});
 
 const WellnessPage = () => {
-  const { openContact } = useOutletContext();
+  // EXTRAEMOS IDIOMA Y DICCIONARIO
+  const { openContact, lang } = useOutletContext();
+  const td = dictionary[lang].wellnessPage;
+  const tp = dictionary[lang].disneyPage; // Reutilizamos textos generales como "Explore Access"
+  const hubs = getHubs(td);
+
   const [activeHub, setActiveHub] = useState('clinics');
   const [activeItems, setActiveItems] = useState({});
   const isFirstRender = useRef(true);
@@ -236,7 +244,7 @@ const WellnessPage = () => {
                             })}
                             className="relative z-10 text-[10px] font-bold uppercase tracking-[0.25em] border-b pb-1 transition-all w-fit mt-4 text-white border-white hover:text-orange-300 hover:border-orange-300"
                         >
-                            Explore Access
+                            {tp.exploreAcc}
                         </button>
                     </div>
                 );
@@ -251,7 +259,7 @@ const WellnessPage = () => {
                 <div className="md:col-span-5 pr-8 md:border-r border-gray-200">
                     <div className="flex items-center gap-2 mb-6">
                          <Zap size={14} className="text-orange-500"/>
-                         <h3 className="font-serif text-2xl text-black">Extended Horizons</h3>
+                         <h3 className="font-serif text-2xl text-black">{tp.extHor}</h3>
                     </div>
 
                     {currentHub.extended && currentHub.extended.length > 0 ? (
@@ -275,12 +283,12 @@ const WellnessPage = () => {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-400 italic">Curated add-ons available upon request.</p>
+                        <p className="text-sm text-gray-400 italic">{tp.addons}</p>
                     )}
                 </div>
 
                 <div className="md:col-span-7 md:pl-4 flex flex-col justify-center items-start">
-                    <h3 className="font-serif text-2xl text-black mb-4">The VIP Difference</h3>
+                    <h3 className="font-serif text-2xl text-black mb-4">{tp.vipDiff}</h3>
                     <p className="text-lg text-gray-700 font-light mb-8 leading-relaxed italic border-l-2 border-orange-500 pl-6">
                         "{currentHub.vipPromise}"
                     </p>
@@ -293,7 +301,7 @@ const WellnessPage = () => {
                         })}
                         className="bg-black text-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition shadow-xl w-full md:w-auto"
                     >
-                        Start Planning
+                        {tp.startPlan}
                     </button>
                 </div>
             </div>

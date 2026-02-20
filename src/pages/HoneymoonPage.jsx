@@ -4,20 +4,23 @@ import { Star, Zap, MapPin } from 'lucide-react';
 import NextJourney from '../components/NextJourney';
 import ScrollIndicator from '../components/ScrollIndicator';
 
-// --- DATOS ESTÁTICOS ---
-const hubs = {
+// --- IMPORTAMOS EL DICCIONARIO ---
+import { dictionary } from '../dictionary';
+
+// --- DATOS DINÁMICOS POR IDIOMA ---
+const getHubs = (td) => ({
   maldives: {
     id: "maldives",
     label: "The Classics",
-    title: "Overwater Dreams",
-    subtitle: "Maldives & Bora Bora",
-    description: "The definitive honeymoon icons. Infinite turquoise and total seclusion.",
+    title: td.malTitle,
+    subtitle: td.malSub,
+    description: td.malDesc,
     heroImage: "/hm-maldives.jpg", 
     brands: [
       {
         brandPart: "The", fontClass: "font-serif", locPart: "Maldives",
-        highlight: "One Island, One Resort. The ultimate privacy.",
-        vibe: "Barefoot Luxury",
+        highlight: td.malHL1,
+        vibe: td.malVibe1,
         items: [
            { name: "Soneva Jani", media: "/hm-soneva.jpg" },
            { name: "One&Only Reethi Rah", media: "/hm-oneonly.jpg" },
@@ -26,8 +29,8 @@ const hubs = {
       },
       {
         brandPart: "French", fontClass: "font-serif", locPart: "Polynesia",
-        highlight: "Bora Bora and The Brando. Mount Otemanu views.",
-        vibe: "Dramatic Beauty",
+        highlight: td.malHL2,
+        vibe: td.malVibe2,
         items: [
            { name: "Four Seasons Bora Bora", media: "/hm-bora.jpg" },
            { name: "The Brando", media: "/hm-brando.jpg" }
@@ -39,20 +42,20 @@ const hubs = {
       { name: "Singapore City", image: "/hm-singapore.jpg" },
       { name: "Doha Business Class", image: "/hm-qatar.jpg" }
     ],
-    vipPromise: "Sunset Butler Service. Private sandbank dinners."
+    vipPromise: td.malVIP
   },
   mediterranean: {
     id: "mediterranean",
     label: "Euro Summer",
-    title: "Mediterranean Chic",
-    subtitle: "Italy & Greece",
-    description: "La Dolce Vita. Cliffside suites, private yachts and ancient history.",
+    title: td.medTitle,
+    subtitle: td.medSub,
+    description: td.medDesc,
     heroImage: "/hm-amalfi.jpg", 
     brands: [
       {
         brandPart: "Amalfi", fontClass: "font-serif", locPart: "Coast",
-        highlight: "Positano, Ravello and Capri. The vertical towns.",
-        vibe: "Glamour",
+        highlight: td.medHL1,
+        vibe: td.medVibe1,
         items: [
            { name: "Le Sirenuse", media: "/hm-sirenuse.jpg" },
            { name: "Caruso, Belmond", media: "/hm-caruso.jpg" }
@@ -60,8 +63,8 @@ const hubs = {
       },
       {
         brandPart: "The Greek", fontClass: "font-serif", locPart: "Islands",
-        highlight: "Santorini sunsets and Mykonos energy.",
-        vibe: "Mythological",
+        highlight: td.medHL2,
+        vibe: td.medVibe2,
         items: [
            { name: "Canaves Oia Epitome", media: "/hm-santorini.jpg" },
            { name: "Amanzoe", media: "/hm-amanzoe.jpg" }
@@ -73,20 +76,20 @@ const hubs = {
        { name: "Portofino", image: "/hm-portofino.jpg" },
        { name: "South of France", image: "/hm-riviera.jpg" }
     ],
-    vipPromise: "Vintage Boat Days. Reservations at impossible tables."
+    vipPromise: td.medVIP
   },
   safari: {
     id: "safari",
     label: "Wild Romance",
-    title: "Into the Wild",
-    subtitle: "Africa",
-    description: "The contrast of raw nature and ultra-luxury lodges.",
+    title: td.safTitle,
+    subtitle: td.safSub,
+    description: td.safDesc,
     heroImage: "/hm-safari.jpg", 
     brands: [
       {
         brandPart: "South", fontClass: "font-serif", locPart: "Africa",
-        highlight: "Kruger National Park & Cape Town. Wine and Wildlife.",
-        vibe: "Adventure",
+        highlight: td.safHL1,
+        vibe: td.safVibe1,
         items: [
             { name: "Singita Lebombo", media: "/hm-singita.jpg" },
             { name: "Royal Malewane", media: "/hm-royal.jpg" }
@@ -94,8 +97,8 @@ const hubs = {
       },
       {
         brandPart: "East", fontClass: "font-serif", locPart: "Africa",
-        highlight: "Tanzania & Rwanda. The Great Migration and Gorillas.",
-        vibe: "Soulful",
+        highlight: td.safHL2,
+        vibe: td.safVibe2,
         items: [
             { name: "Four Seasons Serengeti", media: "/hm-serengeti.jpg" },
             { name: "Bisate Lodge", media: "/hm-bisate.jpg" }
@@ -107,20 +110,20 @@ const hubs = {
        { name: "Seychelles Beach", image: "/hm-seychelles.jpg" },
        { name: "Mauritius", image: "/hm-mauritius.jpg" }
     ],
-    vipPromise: "Private Game Drives. Star beds under the African sky."
+    vipPromise: td.safVIP
   },
   asia: {
     id: "asia",
     label: "Zen Retreats",
-    title: "Eastern Serenity",
-    subtitle: "Japan & SE Asia",
-    description: "Spiritual connection, ancient culture and tropical lushness.",
+    title: td.asiTitle,
+    subtitle: td.asiSub,
+    description: td.asiDesc,
     heroImage: "/hm-kyoto.jpg", 
     brands: [
       {
         brandPart: "Cultural", fontClass: "font-serif", locPart: "Japan",
-        highlight: "Kyoto Ryokans and Tokyo Modernity.",
-        vibe: "Harmony",
+        highlight: td.asiHL1,
+        vibe: td.asiVibe1,
         items: [
             { name: "Aman Tokyo", media: "/hm-amantokyo.jpg" },
             { name: "Park Hyatt Kyoto", media: "/hm-kyoto-hotel.jpg" }
@@ -128,8 +131,8 @@ const hubs = {
       },
       {
         brandPart: "Tropical", fontClass: "font-serif", locPart: "Sanctuaries",
-        highlight: "Bali, Thailand and Vietnam.",
-        vibe: "Wellness",
+        highlight: td.asiHL2,
+        vibe: td.asiVibe2,
         items: [
             { name: "Amankila Bali", media: "/hm-bali.jpg" },
             { name: "Six Senses Yao Noi", media: "/hm-thailand.jpg" }
@@ -141,12 +144,17 @@ const hubs = {
         { name: "Bhutan", image: "/hm-bhutan.jpg" },
         { name: "Raja Ampat", image: "/hm-raja.jpg" }
     ],
-    vipPromise: "Private Temple Access. Monk blessings."
+    vipPromise: td.asiVIP
   }
-};
+});
 
 const HoneymoonPage = () => {
-  const { openContact } = useOutletContext();
+  // EXTRAEMOS IDIOMA Y DICCIONARIO
+  const { openContact, lang } = useOutletContext();
+  const td = dictionary[lang].honeymoonPage;
+  const tp = dictionary[lang].disneyPage; // Reutilizamos textos generales como "Explore Access"
+  const hubs = getHubs(td);
+
   const [activeHub, setActiveHub] = useState('maldives');
   const [activeItems, setActiveItems] = useState({});
   const isFirstRender = useRef(true);
@@ -267,7 +275,6 @@ const HoneymoonPage = () => {
 
                         <div className="relative z-10 text-white drop-shadow-md transition-colors duration-300">
                             <div className="mb-6 flex flex-wrap items-baseline gap-x-2">
-                                {brand.prefix && <span className="font-serif text-2xl md:text-3xl text-gray-200">{brand.prefix}</span>}
                                 <span className={`${brand.fontClass} text-3xl md:text-4xl text-white`}>{brand.brandPart}</span>
                                 <span className="font-serif text-2xl md:text-3xl italic text-gray-200">{brand.locPart}</span>
                             </div>
@@ -307,7 +314,7 @@ const HoneymoonPage = () => {
                             })}
                             className="relative z-10 text-[10px] font-bold uppercase tracking-[0.25em] border-b pb-1 transition-all w-fit mt-4 text-white border-white hover:text-orange-300 hover:border-orange-300"
                         >
-                            Explore Access
+                            {tp.exploreAcc}
                         </button>
                     </div>
                 );
@@ -322,7 +329,7 @@ const HoneymoonPage = () => {
                 <div className="md:col-span-5 pr-8 md:border-r border-gray-200">
                     <div className="flex items-center gap-2 mb-6">
                          <Zap size={14} className="text-orange-500"/>
-                         <h3 className="font-serif text-2xl text-black">Extended Horizons</h3>
+                         <h3 className="font-serif text-2xl text-black">{tp.extHor}</h3>
                     </div>
 
                     {currentHub.extended && currentHub.extended.length > 0 ? (
@@ -346,12 +353,12 @@ const HoneymoonPage = () => {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-400 italic">Curated add-ons available upon request.</p>
+                        <p className="text-sm text-gray-400 italic">{tp.addons}</p>
                     )}
                 </div>
 
                 <div className="md:col-span-7 md:pl-4 flex flex-col justify-center items-start">
-                    <h3 className="font-serif text-2xl text-black mb-4">The VIP Difference</h3>
+                    <h3 className="font-serif text-2xl text-black mb-4">{tp.vipDiff}</h3>
                     <p className="text-lg text-gray-700 font-light mb-8 leading-relaxed italic border-l-2 border-orange-500 pl-6">
                         "{currentHub.vipPromise}"
                     </p>
@@ -364,7 +371,7 @@ const HoneymoonPage = () => {
                         })}
                         className="bg-black text-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition shadow-xl w-full md:w-auto"
                     >
-                        Start Planning
+                        {tp.startPlan}
                     </button>
                 </div>
             </div>

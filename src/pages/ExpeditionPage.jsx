@@ -4,20 +4,23 @@ import { Star, Zap, MapPin } from 'lucide-react';
 import NextJourney from '../components/NextJourney';
 import ScrollIndicator from '../components/ScrollIndicator';
 
-// --- DATOS ESTÁTICOS ---
-const hubs = {
+// --- IMPORTAMOS EL DICCIONARIO ---
+import { dictionary } from '../dictionary';
+
+// --- DATOS DINÁMICOS POR IDIOMA ---
+const getHubs = (td) => ({
   polar: {
     id: "polar",
     label: "The Poles",
-    title: "Frozen Frontiers",
-    subtitle: "Antarctica & The Arctic",
-    description: "The last true wilderness. Icebreakers, penguins and the midnight sun.",
+    title: td.polTitle,
+    subtitle: td.polSub,
+    description: td.polDesc,
     heroImage: "/exp-antarctica.jpg", 
     brands: [
       {
         brandPart: "White", fontClass: "font-serif", locPart: "Desert",
-        highlight: "Fly directly to the interior of Antarctica. Emperors & South Pole.",
-        vibe: "Exclusive",
+        highlight: td.polHL1,
+        vibe: td.polVibe1,
         items: [
            { name: "Whichaway Camp", media: "/exp-whichaway.jpg" },
            { name: "Echo Camp", media: "/exp-echo.jpg" }
@@ -25,8 +28,8 @@ const hubs = {
       },
       {
         brandPart: "Luxury", fontClass: "font-serif", locPart: "Icebreakers",
-        highlight: "Silversea & Ponant. The ultimate luxury expedition ships.",
-        vibe: "Discovery",
+        highlight: td.polHL2,
+        vibe: td.polVibe2,
         items: [
            { name: "Silver Endeavour", media: "/exp-silversea.jpg" },
            { name: "Le Commandant Charcot", media: "/exp-ponant.jpg" }
@@ -38,20 +41,20 @@ const hubs = {
       { name: "Greenland", image: "/exp-greenland.jpg" },
       { name: "Iceland Interior", image: "/exp-iceland.jpg" }
     ],
-    vipPromise: "Private Charter Flights. Expert Polar Guides."
+    vipPromise: td.polVIP
   },
   galapagos: {
     id: "galapagos",
     label: "Living Lab",
-    title: "Evolution Theory",
-    subtitle: "The Galapagos Islands",
-    description: "Where time stood still. Walk among wildlife that has no fear of humans.",
+    title: td.galTitle,
+    subtitle: td.galSub,
+    description: td.galDesc,
     heroImage: "/exp-galapagos.jpg", 
     brands: [
       {
         brandPart: "Private", fontClass: "font-serif", locPart: "Charters",
-        highlight: "Small luxury yachts. Quasar & Ecoventura.",
-        vibe: "Intimate",
+        highlight: td.galHL1,
+        vibe: td.galVibe1,
         items: [
            { name: "MV Evolution", media: "/exp-evolution.jpg" },
            { name: "Origin & Theory", media: "/exp-theory.jpg" }
@@ -59,8 +62,8 @@ const hubs = {
       },
       {
         brandPart: "Land", fontClass: "font-serif", locPart: "Based",
-        highlight: "Pikaia Lodge. Exploring the islands from a crater edge.",
-        vibe: "Design",
+        highlight: td.galHL2,
+        vibe: td.galVibe2,
         items: [
            { name: "Pikaia Lodge", media: "/exp-pikaia.jpg" },
            { name: "Santa Cruz II", media: "/exp-santacruz.jpg" }
@@ -72,20 +75,20 @@ const hubs = {
        { name: "Quito Colonial", image: "/exp-quito.jpg" },
        { name: "Amazon Add-on", image: "/exp-amazon.jpg" }
     ],
-    vipPromise: "Private Naturalist Guides. Custom Itineraries."
+    vipPromise: td.galVIP
   },
   patagonia: {
     id: "patagonia",
     label: "Ends of Earth",
-    title: "Patagonian Spirit",
-    subtitle: "Chile & Argentina",
-    description: "Jagged peaks, glaciers and the pampas. The ultimate trekking luxury.",
+    title: td.patTitle,
+    subtitle: td.patSub,
+    description: td.patDesc,
     heroImage: "/exp-patagonia.jpg", 
     brands: [
       {
         brandPart: "Torres", fontClass: "font-serif", locPart: "del Paine",
-        highlight: "Explora & Awasi. Relais & Châteaux at the end of the world.",
-        vibe: "Raw Beauty",
+        highlight: td.patHL1,
+        vibe: td.patVibe1,
         items: [
             { name: "Awasi Patagonia", media: "/exp-awasi.jpg" },
             { name: "Explora Salto Chico", media: "/exp-explora.jpg" }
@@ -93,8 +96,8 @@ const hubs = {
       },
       {
         brandPart: "The", fontClass: "font-serif", locPart: "Glaciers",
-        highlight: "Perito Moreno & El Chalten. Ice trekking and estancias.",
-        vibe: "Majestic",
+        highlight: td.patHL2,
+        vibe: td.patVibe2,
         items: [
             { name: "Eolo Lodge", media: "/exp-eolo.jpg" },
             { name: "El Chalten", media: "/exp-chalten.jpg" }
@@ -106,12 +109,17 @@ const hubs = {
         { name: "Easter Island", image: "/exp-easter.jpg" },
         { name: "Mendoza Wine", image: "/exp-mendoza.jpg" }
     ],
-    vipPromise: "Private 4x4 Guides. Heli-Hiking Access."
+    vipPromise: td.patVIP
   }
-};
+});
 
 const ExpeditionPage = () => {
-  const { openContact } = useOutletContext();
+  // EXTRAEMOS IDIOMA Y DICCIONARIO
+  const { openContact, lang } = useOutletContext();
+  const td = dictionary[lang].expeditionPage;
+  const tp = dictionary[lang].disneyPage; // Reutilizamos textos generales como "Explore Access"
+  const hubs = getHubs(td);
+
   const [activeHub, setActiveHub] = useState('polar');
   const [activeItems, setActiveItems] = useState({});
   const isFirstRender = useRef(true);
@@ -270,7 +278,7 @@ const ExpeditionPage = () => {
                             })}
                             className="relative z-10 text-[10px] font-bold uppercase tracking-[0.25em] border-b pb-1 transition-all w-fit mt-4 text-white border-white hover:text-orange-300 hover:border-orange-300"
                         >
-                            Explore Access
+                            {tp.exploreAcc}
                         </button>
                     </div>
                 );
@@ -285,7 +293,7 @@ const ExpeditionPage = () => {
                 <div className="md:col-span-5 pr-8 md:border-r border-gray-200">
                     <div className="flex items-center gap-2 mb-6">
                          <Zap size={14} className="text-orange-500"/>
-                         <h3 className="font-serif text-2xl text-black">Extended Horizons</h3>
+                         <h3 className="font-serif text-2xl text-black">{tp.extHor}</h3>
                     </div>
 
                     {currentHub.extended && currentHub.extended.length > 0 ? (
@@ -309,12 +317,12 @@ const ExpeditionPage = () => {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-400 italic">Curated add-ons available upon request.</p>
+                        <p className="text-sm text-gray-400 italic">{tp.addons}</p>
                     )}
                 </div>
 
                 <div className="md:col-span-7 md:pl-4 flex flex-col justify-center items-start">
-                    <h3 className="font-serif text-2xl text-black mb-4">The VIP Difference</h3>
+                    <h3 className="font-serif text-2xl text-black mb-4">{tp.vipDiff}</h3>
                     <p className="text-lg text-gray-700 font-light mb-8 leading-relaxed italic border-l-2 border-orange-500 pl-6">
                         "{currentHub.vipPromise}"
                     </p>
@@ -327,7 +335,7 @@ const ExpeditionPage = () => {
                         })}
                         className="bg-black text-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition shadow-xl w-full md:w-auto"
                     >
-                        Start Planning
+                        {tp.startPlan}
                     </button>
                 </div>
             </div>

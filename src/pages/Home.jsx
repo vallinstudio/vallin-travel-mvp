@@ -2,9 +2,13 @@ import React from 'react';
 import { ArrowRight, Star, ChevronsDown } from 'lucide-react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 
+// Importar Diccionario
+import { dictionary } from '../dictionary';
+
 const Home = () => {
-  const { openContact } = useOutletContext();
+  const { openContact, lang } = useOutletContext();
   const navigate = useNavigate();
+  const t = dictionary[lang]; // Variables de texto en el idioma activo
 
   const handleScrollDown = () => {
     const section = document.getElementById('collections');
@@ -16,7 +20,7 @@ const Home = () => {
   const collections = [
     { 
       id: 1, 
-      title: "Legacy & Magic", 
+      title: t.coll.c1, 
       subtitle: "Disney & Universal", 
       image: "/castillo.jpg", 
       pos: "center center",
@@ -24,24 +28,24 @@ const Home = () => {
     },
     { 
       id: 2, 
-      title: "Honeymoon", 
-      subtitle: "Curated Romance", 
+      title: t.coll.c2, 
+      subtitle: t.coll.sub2, 
       image: "/honey.jpeg", 
       pos: "80% center",
       path: "/honeymoon"
     },
     { 
       id: 3, 
-      title: "Expedition", 
-      subtitle: "For the Intrepid", 
+      title: t.coll.c3, 
+      subtitle: t.coll.sub3, 
       image: "/expedition.jpg", 
       pos: "center center",
       path: "/expedition" 
     },
     { 
       id: 4, 
-      title: "Wellness", 
-      subtitle: "Sanctuaries", 
+      title: t.coll.c4, 
+      subtitle: t.coll.sub4, 
       image: "/wellness.jpeg", 
       pos: "center 45%",
       path: "/wellness"   
@@ -67,13 +71,13 @@ const Home = () => {
 
         <div className="relative z-20 text-center px-4 animate-fade-in">
           <p className="text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase mb-4 text-orange-200 border border-orange-200/30 px-4 py-2 bg-black/30 backdrop-blur-sm inline-block">
-            Private Travel Design
+            {t.hero.badge}
           </p>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif mb-4 leading-tight drop-shadow-2xl">
-            We don't sell<br />destinations.
+            {t.hero.title1}<br />{t.hero.title2}
           </h1>
           <p className="text-lg md:text-xl font-serif italic text-gray-300 mb-8 font-light">
-            We design feelings.
+            {t.hero.subtitle}
           </p>
 
           <button 
@@ -81,7 +85,7 @@ const Home = () => {
             className="group relative px-10 py-4 overflow-hidden transition-all duration-300 bg-transparent border border-white hover:bg-white"
           >
             <span className="relative z-10 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 group-hover:text-black">
-              Start Your Journey
+              {t.hero.btn}
             </span>
             <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] group-hover:bg-white transition-all duration-300"></div>
           </button>
@@ -99,11 +103,11 @@ const Home = () => {
       <section id="collections" className="bg-white text-black py-24 px-6 md:px-12">
         <div className="flex justify-between items-end mb-12">
           <div>
-            <h2 className="text-xs font-bold text-orange-600 uppercase tracking-[0.2em] mb-3">Curated Journeys</h2>
-            <h3 className="text-5xl font-serif">Explore Collections</h3>
+            <h2 className="text-xs font-bold text-orange-600 uppercase tracking-[0.2em] mb-3">{t.coll.over}</h2>
+            <h3 className="text-5xl font-serif">{t.coll.title}</h3>
           </div>
           <a href="#" className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:text-orange-600">
-            View All <ArrowRight className="w-4 h-4"/>
+            {t.coll.viewAll} <ArrowRight className="w-4 h-4"/>
           </a>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-1">
@@ -130,7 +134,7 @@ const Home = () => {
                     )}
                 </div>
 
-                <span className="text-[10px] font-bold uppercase tracking-widest border-b border-orange-500 pb-1 text-orange-300">Explore</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest border-b border-orange-500 pb-1 text-orange-300">{t.coll.explore}</span>
               </div>
             </div>
           ))}
@@ -147,28 +151,28 @@ const Home = () => {
             <div className="flex items-center gap-4 mb-8 flex-wrap items-center">
               <div className="flex items-center gap-2">
                  <div className="p-1 border border-orange-400/50 rounded-full"><Star className="w-3 h-3 text-orange-400 fill-current"/></div>
-                 <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-200">Members Only Access</span>
+                 <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-200">{t.vault.badge}</span>
               </div>
               <div className="flex items-center gap-2 border-l border-white/20 pl-4 ml-2 opacity-80 hover:opacity-100 transition-opacity">
-                 <span className="text-[8px] uppercase tracking-widest text-gray-300 leading-tight text-right">Powered<br/>by</span>
+                 <span className="text-[8px] uppercase tracking-widest text-gray-300 leading-tight text-right whitespace-pre-line">{t.vault.powered}</span>
                  <img src="/LOGO1BCO_1.svg" alt="Smart Mouse Tech" className="h-12 w-auto" />
               </div>
             </div>
-            <h2 className="text-5xl md:text-7xl font-serif mb-6 leading-none text-white">The Grand<br />Floridian</h2>
-            <p className="text-2xl font-serif italic text-gray-300 mb-8 font-light border-l-2 border-orange-500 pl-4">at Moderate Pricing.</p>
+            <h2 className="text-5xl md:text-7xl font-serif mb-6 leading-none text-white">{t.vault.title1}<br />{t.vault.title2}</h2>
+            <p className="text-2xl font-serif italic text-gray-300 mb-8 font-light border-l-2 border-orange-500 pl-4">{t.vault.subtitle}</p>
             <p className="text-gray-300 text-sm mb-12 leading-relaxed font-light">
-              Unlock <strong><span className="font-walt text-xl">Disney</span> Vacation Club's</strong> secret inventory. 
+              {/* AQUÍ ESTÁ LA MAGIA DEL IDIOMA PARA LA 'S */}
+              {t.vault.desc1} <strong><span className="font-walt text-xl">Disney</span> Vacation Club{lang === 'en' ? "'s" : ""}</strong> {t.vault.desc2} 
             </p>
             <div className="grid grid-cols-2 gap-12 mb-10 border-t border-white/10 pt-8">
-              <div><p className="text-[9px] uppercase tracking-widest text-gray-500 mb-2">Standard Rate</p><p className="text-xl font-serif text-gray-400 line-through decoration-white/30">$4,500 USD</p></div>
-              <div><p className="text-[9px] uppercase tracking-widest text-orange-400 mb-2">Vallin Smart Rate</p><p className="text-4xl font-serif text-white">$2,300 USD</p></div>
+              <div><p className="text-[9px] uppercase tracking-widest text-gray-500 mb-2">{t.vault.stdRate}</p><p className="text-xl font-serif text-gray-400 line-through decoration-white/30">$4,500 USD</p></div>
+              <div><p className="text-[9px] uppercase tracking-widest text-orange-400 mb-2">{t.vault.smartRate}</p><p className="text-4xl font-serif text-white">$2,300 USD</p></div>
             </div>
-            {/* BOTÓN CON LINK AL VAULT (Sin cambios aquí) */}
             <button 
                 onClick={() => navigate('/vault')} 
                 className="bg-orange-700 w-full py-5 text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition text-white shadow-2xl border border-orange-600/50"
             >
-                Access The Vault
+                {t.vault.btn}
             </button>
           </div>
         </div>

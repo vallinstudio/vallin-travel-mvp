@@ -4,20 +4,24 @@ import { Star, Zap, MapPin } from 'lucide-react';
 import NextJourney from '../components/NextJourney';
 import ScrollIndicator from '../components/ScrollIndicator';
 
-// --- DATOS ESTÁTICOS ---
-const hubs = {
+// --- IMPORTAMOS EL DICCIONARIO ---
+import { dictionary } from '../dictionary';
+
+// --- DATOS DINÁMICOS POR IDIOMA ---
+// Convertimos los hubs en una función que recibe los textos traducidos (td)
+const getHubs = (td) => ({
   orlando: {
     id: "orlando",
     label: "Orlando",
-    title: "The Sunshine State",
-    subtitle: "Florida, USA",
-    description: "The definitive collection. Home to the largest resort complex on Earth.",
+    title: td.orlTitle,
+    subtitle: td.orlSub,
+    description: td.orlDesc,
     heroImage: "/ML_Orlando.jpeg", 
     brands: [
       {
         brandPart: "Walt Disney", fontClass: "font-walt capitalize", locPart: "World",
-        highlight: "The sheer scale. 4 Theme Parks, 2 Water Parks. Pandora & Star Wars.",
-        vibe: "Infinite Wonder",
+        highlight: td.wdwHL,
+        vibe: td.wdwVibe,
         items: [
            { name: "Magic Kingdom", media: "/wdw-magic.jpg" },
            { name: "EPCOT", media: "/wdw-epcot.jpg" },
@@ -27,8 +31,8 @@ const hubs = {
       },
       {
         brandPart: "UNIVERSAL", fontClass: "font-universal tracking-widest uppercase", locPart: "Orlando Resort",
-        highlight: "The Wizarding World & Epic Universe.",
-        vibe: "Cinematic Reality",
+        highlight: td.uniHL,
+        vibe: td.uniVibe,
         items: [
            { name: "Universal Studios", media: "/uni-harry.jpg" },
            { name: "Islands of Adventure", media: "/uni-island.jpg" },
@@ -41,20 +45,20 @@ const hubs = {
       { name: "Discovery Cove", image: "/discovery-ray.jpg" },
       { name: "Legoland", image: "/lego-ferrari.jpg" }
     ],
-    vipPromise: "Seamless Movement. We curate the rhythm of your day."
+    vipPromise: td.orlVIP
   },
   california: {
     id: "california",
     label: "California",
-    title: "The Original",
-    subtitle: "Anaheim & Hollywood",
-    description: "Where it all began. Walk the streets Walt walked.",
+    title: td.calTitle,
+    subtitle: td.calSub,
+    description: td.calDesc,
     heroImage: "/ML_California.jpg", 
     brands: [
       {
         brandPart: "Disneyland", fontClass: "font-enchanted text-4xl", locPart: "Resort",
-        highlight: "The original magic. Main Street U.S.A. & Cars Land.",
-        vibe: "Historic Charm",
+        highlight: td.dlrHL,
+        vibe: td.dlrVibe,
         items: [
            { name: "Disneyland Park", media: "/dlr-castle.jpg" },
            { name: "California Adventure", media: "/dlr-cars.jpg" }
@@ -62,8 +66,8 @@ const hubs = {
       },
       {
         brandPart: "UNIVERSAL", fontClass: "font-universal tracking-widest uppercase", locPart: "Studios Hollywood",
-        highlight: "The World-Famous Studio Tour & Super Nintendo World.",
-        vibe: "The Real Hollywood",
+        highlight: td.uhHL,
+        vibe: td.uhVibe,
         items: [
            { name: "Universal Studios", media: "/uni-hollywood.jpg" }
         ]
@@ -73,20 +77,20 @@ const hubs = {
        { name: "Knott's Berry Farm", image: "/knotts-snoopy.jpg" },
        { name: "Legoland CA", image: "/lego-california.jpg" }
     ],
-    vipPromise: "Celebrity Access. Experience the parks with privacy."
+    vipPromise: td.calVIP
   },
   global: {
     id: "global",
     label: "Global Icons",
-    title: "International Icons",
-    subtitle: "Europe, Asia & Middle East",
-    description: "Cultural reinterpretations of the magic.",
+    title: td.gloTitle,
+    subtitle: td.gloSub,
+    description: td.gloDesc,
     heroImage: "/ML_Global.jpg",
     brands: [
       {
         brandPart: "Disneyland", fontClass: "font-walt capitalize", locPart: "Paris",
-        highlight: "European elegance. The most beautiful castle in the world.",
-        vibe: "Romance & Light",
+        highlight: td.dlpHL,
+        vibe: td.dlpVibe,
         items: [
             { name: "Disneyland Park", media: "/dlp-cascades.jpg" },
             { name: "Walt Disney Studios", media: "/dlp-studios.jpg", position: "center 85%" } 
@@ -94,7 +98,7 @@ const hubs = {
       },
       {
         prefix: "Tokyo", brandPart: "Disney", fontClass: "font-walt capitalize", locPart: "Resort",
-        highlight: "The perfectionist's dream.", vibe: "Perfection",
+        highlight: td.tkyHL, vibe: td.tkyVibe,
         items: [
             { name: "Tokyo Disneyland", media: "/dlt-tokyo.jpg" },
             { name: "Tokyo DisneySea", media: "/dlt-seas.jpg" }
@@ -102,20 +106,20 @@ const hubs = {
       },
       {
         prefix: "Shanghai", brandPart: "Disney", fontClass: "font-walt capitalize", locPart: "Resort",
-        highlight: "Scale and Futurism. Zootopia & TRON.",
-        vibe: "Majesty",
+        highlight: td.shgHL,
+        vibe: td.shgVibe,
         items: [{ name: "Shanghai Disneyland", media: "/dls-zootopia.jpg" }]
       },
       {
         prefix: "Hong Kong", brandPart: "Disneyland", fontClass: "font-walt capitalize", locPart: "",
-        highlight: "Nestled among Lantau's mountains. World of Frozen.",
-        vibe: "Intimacy",
+        highlight: td.hkgHL,
+        vibe: td.hkgVibe,
         items: [{ name: "HK Disneyland", media: "/dlhk-frozen.jpg" }]
       },
       {
         brandPart: "UNIVERSAL", fontClass: "font-universal tracking-widest uppercase", locPart: "Studios Japan",
-        highlight: "Mario Bros, Donkey Kong Country and Godzilla.",
-        vibe: "High Energy",
+        highlight: td.usjHL,
+        vibe: td.usjVibe,
         items: [{ name: "Universal Japan", media: "/unj-kong.jpg" }]
       }
     ],
@@ -124,20 +128,20 @@ const hubs = {
        { name: "Warner Bros", image: "/wb-pedro.jpg" },
        { name: "Legoland Billund", image: "/lego-billund.jpg" }
     ],
-    vipPromise: "Global Fluency. We navigate the culture for you."
+    vipPromise: td.gloVIP
   },
   sea: {
     id: "sea",
     label: "High Seas",
-    title: "The High Seas",
-    subtitle: "Global Itineraries",
-    description: "The world is the destination. Alaska, The Mediterranean, The Caribbean.",
+    title: td.seaTitle,
+    subtitle: td.seaSub,
+    description: td.seaDesc,
     heroImage: "/ML_Cruise.jpg",
     brands: [
       {
         brandPart: "Disney", fontClass: "font-walt capitalize", locPart: "Cruise Line",
-        highlight: "Fireworks at sea. Broadway-caliber shows. Private Islands.",
-        vibe: "Floating Palaces",
+        highlight: td.dclHL,
+        vibe: td.dclVibe,
         items: [
             { name: "The Fleet", media: "/dc-ship.jpg" },
             { name: "Private Islands", media: "/dc-island.jpg" }
@@ -148,12 +152,16 @@ const hubs = {
         { name: "Land & Sea", image: "/dc-landsea.jpg" },
         { name: "Adventures by Disney", image: "/dc-adventures.jpg" }
     ],
-    vipPromise: "Concierge Suites. Priority boarding. Private Sun Decks."
+    vipPromise: td.seaVIP
   }
-};
+});
 
 const LegacyMagic = () => {
-  const { openContact } = useOutletContext();
+  // EXTRAEMOS IDIOMA DESDE EL OUTLET Y TEXTOS DESDE EL DICCIONARIO
+  const { openContact, lang } = useOutletContext();
+  const td = dictionary[lang].disneyPage;
+  const hubs = getHubs(td); // Generamos los hubs en el idioma actual
+
   const [activeHub, setActiveHub] = useState('orlando');
   const [activeItems, setActiveItems] = useState({});
   const isFirstRender = useRef(true);
@@ -323,7 +331,7 @@ const LegacyMagic = () => {
                             })}
                             className="relative z-10 text-[10px] font-bold uppercase tracking-[0.25em] border-b pb-1 transition-all w-fit mt-4 text-white border-white hover:text-orange-300 hover:border-orange-300"
                         >
-                            Explore Access
+                            {td.exploreAcc}
                         </button>
                     </div>
                 );
@@ -338,7 +346,7 @@ const LegacyMagic = () => {
                 <div className="md:col-span-5 pr-8 md:border-r border-gray-200">
                     <div className="flex items-center gap-2 mb-6">
                          <Zap size={14} className="text-orange-500"/>
-                         <h3 className="font-serif text-2xl text-black">Extended Horizons</h3>
+                         <h3 className="font-serif text-2xl text-black">{td.extHor}</h3>
                     </div>
 
                     {currentHub.extended && currentHub.extended.length > 0 ? (
@@ -362,12 +370,12 @@ const LegacyMagic = () => {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-400 italic">Curated add-ons available upon request.</p>
+                        <p className="text-sm text-gray-400 italic">{td.addons}</p>
                     )}
                 </div>
 
                 <div className="md:col-span-7 md:pl-4 flex flex-col justify-center items-start">
-                    <h3 className="font-serif text-2xl text-black mb-4">The VIP Difference</h3>
+                    <h3 className="font-serif text-2xl text-black mb-4">{td.vipDiff}</h3>
                     <p className="text-lg text-gray-700 font-light mb-8 leading-relaxed italic border-l-2 border-orange-500 pl-6">
                         "{currentHub.vipPromise}"
                     </p>
@@ -380,7 +388,7 @@ const LegacyMagic = () => {
                         })} 
                         className="bg-black text-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition shadow-xl w-full md:w-auto"
                     >
-                        Start Planning
+                        {td.startPlan}
                     </button>
                 </div>
             </div>
