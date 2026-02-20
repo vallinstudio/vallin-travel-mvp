@@ -271,7 +271,7 @@ export const dictionary = {
         galVIP: "Private Naturalist Guides. Custom Itineraries.",
         patTitle: "Patagonian Spirit", patSub: "Chile & Argentina", patDesc: "Jagged peaks, glaciers and the pampas. The ultimate trekking luxury.",
         patHL1: "Explora & Awasi. Relais & Châteaux at the end of the world.", patVibe1: "Raw Beauty",
-        patHL2: "Perito Moreno & El Chalten. Ice trekking and estancias.", patVibe2: "Majestic",
+        patHL2: "Perito Moreno & El Chalten. Ice trekking and estancias.", patVibe2: "Majestuoso",
         patVIP: "Private 4x4 Guides. Heli-Hiking Access."
     },
     wellnessPage: {
@@ -287,6 +287,19 @@ export const dictionary = {
     next: {
         contJourney: "Continue Your Journey",
         swipeExp: "Swipe to Explore"
+    },
+    aboutPage: {
+        title: "Our Story",
+        subtitle: "The Art of Smart Luxury",
+        p1Title: "Beyond the Destination",
+        p1Desc: "we believe that true luxury is not defined by thread counts or marble lobbies, but by the seamless orchestration of your time and emotions. We don't just book trips; we design feelings.",
+        p2Title: "The Founder's Vision",
+        p2Desc: "Founded by Jorge Ramírez Pérez, our boutique agency was born from a singular obsession: to master the complex mechanics of luxury travel so our clients only experience the magic. We bridge the gap between high-end expedition standards and intelligent inventory arbitrage.",
+        p3Title: "Global Certifications",
+        p3Desc: "Our expertise is backed by industry-leading credentials. We are proud members of CLIA (Cruise Lines International Association) and hold official certifications from global entertainment leaders like Disney and Universal.",
+        promiseTitle: "Our Promise",
+        promiseDesc: "Total privacy, zero friction, and access to the inaccessible.",
+        startPlan: "Start Your Journey"
     }
   },
   es: {
@@ -577,6 +590,19 @@ export const dictionary = {
     next: {
         contJourney: "Continúa tu Viaje",
         swipeExp: "Desliza para Explorar"
+    },
+    aboutPage: {
+        title: "Nuestra Historia",
+        subtitle: "El Arte del Lujo Inteligente",
+        p1Title: "Más allá del Destino",
+        p1Desc: "creemos que el verdadero lujo no se define por los hilos de las sábanas o los lobbys de mármol, sino por la orquestación impecable de tu tiempo y tus emociones. No solo reservamos viajes; diseñamos sentimientos.",
+        p2Title: "La Visión del Fundador",
+        p2Desc: "Fundada por Jorge Ramírez Pérez, nuestra agencia boutique nació de una sola obsesión: dominar la compleja mecánica de los viajes de lujo para que nuestros clientes solo experimenten la magia. Cerramos la brecha entre los altos estándares de expedición y el arbitraje inteligente de inventario.",
+        p3Title: "Certificaciones Globales",
+        p3Desc: "Nuestra experiencia está respaldada por credenciales líderes en la industria. Somos orgullosos miembros de CLIA (Asociación Internacional de Líneas de Cruceros) y contamos con certificaciones oficiales de líderes mundiales del entretenimiento como Disney y Universal.",
+        promiseTitle: "Nuestra Promesa",
+        promiseDesc: "Privacidad total, cero fricción y acceso a lo inaccesible.",
+        startPlan: "Comienza tu Viaje"
     }
   }
 };

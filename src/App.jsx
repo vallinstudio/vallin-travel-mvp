@@ -12,15 +12,15 @@ import HoneymoonPage from './pages/HoneymoonPage';
 import ExpeditionPage from './pages/ExpeditionPage';
 import WellnessPage from './pages/WellnessPage';
 import TermsPage from './pages/TermsPage'; 
+import AboutPage from './pages/AboutPage'; // <-- NUEVO IMPORT
 
-// NUEVO IMPORT (Asegúrate de haber creado este archivo en src/pages/)
+// Motor Independiente
 import SmartMouseEngine from './pages/SmartMouseEngine';
 
 function App() {
   return (
     <Router>
       <Routes>
-
         {/* === RUTAS ESTÁNDAR (Con el Layout de vaLLin.traveL) === */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
@@ -30,12 +30,11 @@ function App() {
           <Route path="expedition" element={<ExpeditionPage />} />
           <Route path="wellness" element={<WellnessPage />} />
           <Route path="terms" element={<TermsPage />} />
+          <Route path="about" element={<AboutPage />} /> {/* <-- NUEVA RUTA */}
         </Route>
 
         {/* === RUTA PRODUCTO AUTÓNOMO (Sin MainLayout) === */}
-        {/* Esta ruta carga el motor "Smart Mouse" en pantalla completa */}
         <Route path="/smart-mouse" element={<SmartMouseEngine />} />
-
       </Routes>
     </Router>
   );
