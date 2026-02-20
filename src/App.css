@@ -4,45 +4,113 @@
 @tailwind components;
 @tailwind utilities;
 
-/* REGISTRO DE FUENTES LOCALES */
+/* --- FUENTES --- */
 @font-face {
   font-family: 'Waltograph';
-  src: url('/Waltograph42.otf') format('opentype');
-  font-weight: normal; font-style: normal;
+  src: url('/waltograph42.otf') format('opentype'),
+       url('/waltograph42.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
+
 @font-face {
   font-family: 'Enchanted';
   src: url('/Enchanted Land.otf') format('opentype');
-  font-weight: normal; font-style: normal;
+  font-weight: normal;
+  font-style: normal;
 }
 
-/* CLASES DE UTILIDAD PARA FUENTES */
+@font-face {
+  font-family: 'Universal Serif';
+  src: url('/Universal Serif.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* --- CLASES DE UTILIDAD (REGLAS DE ORO) --- */
 .font-walt { 
   font-family: 'Waltograph', sans-serif; 
   letter-spacing: 0.05em;
-  /* CRUCIAL: Evita que se fuerce a mayúsculas, respetando "Disney" */
   text-transform: none !important; 
 }
-.font-enchanted { font-family: 'Enchanted', sans-serif; }
 
-/* ESTILOS GENERALES */
-body { background-color: #000; color: white; font-family: 'Lato', sans-serif; }
-h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
+.font-enchanted { 
+  font-family: 'Enchanted', serif; 
+}
 
-/* HERO VIDEO */
-.hero-wrapper { position: relative; height: 100vh; width: 100%; overflow: hidden; }
+.font-universal {
+  font-family: 'Universal Serif', serif;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em;
+}
+
+/* --- ESTILOS GENERALES --- */
+body { 
+  background-color: #000; /* Restaurado a negro como pediste */
+  color: white; 
+  font-family: 'Lato', sans-serif; 
+}
+
+h1, h2, h3, h4, .font-serif { 
+  font-family: 'Playfair Display', serif; 
+}
+
+/* --- CLASES DE ESTRUCTURA (LO QUE SE ROMPIÓ) --- */
+.hero-wrapper { 
+  position: relative; 
+  height: 100vh; 
+  width: 100%; 
+  overflow: hidden; 
+}
+
 .hero-video {
-  position: absolute; top: 50%; left: 50%;
-  min-width: 100%; min-height: 100%;
+  position: absolute; 
+  top: 50%; 
+  left: 50%;
+  min-width: 100%; 
+  min-height: 100%;
   transform: translate(-50%, -50%);
-  object-fit: cover; z-index: 0;
+  object-fit: cover; 
+  z-index: 0;
   transition: opacity 1.5s ease-in-out;
 }
-.hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); z-index: 10; }
 
-/* OTROS */
-.card-container { position: relative; overflow: hidden; height: 600px; }
-.card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s ease; }
-.card-container:hover .card-img { transform: scale(1.1); }
-.dvc-section { position: relative; padding: 6rem 0; overflow: hidden; }
-.dvc-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.hero-overlay { 
+  position: absolute; 
+  inset: 0; 
+  background: rgba(0,0,0,0.3); 
+  z-index: 10; 
+}
+
+.card-container { 
+  position: relative; 
+  overflow: hidden; 
+  height: 600px; 
+}
+
+.card-img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  transition: transform 1.2s ease; 
+}
+
+.card-container:hover .card-img { 
+  transform: scale(1.1); 
+}
+
+/* CRÍTICO PARA GRAND FLORIDIAN */
+.dvc-section { 
+  position: relative; 
+  padding: 6rem 0; 
+  overflow: hidden; 
+}
+
+.dvc-bg { 
+  position: absolute; 
+  inset: 0; 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  z-index: 0; 
+}
