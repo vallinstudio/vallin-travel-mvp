@@ -56,20 +56,25 @@ const Home = () => {
     <>
       {/* 1. HERO SECTION */}
       <div className="hero-wrapper relative h-[100dvh] flex flex-col justify-center items-center bg-black">
-        {/* SOLUCIÓN AL VIDEO EN SAFARI MÓVIL: playsInline webkit-playsinline */}
-        <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            webkit-playsinline="true"
-            preload="auto"
-            className="hero-video opacity-100"
-        >
-          <source src="/video-hero.mp4" type="video/mp4" />
-        </video>
 
-        <div className="hero-overlay"></div>
+        {/* SOLUCIÓN DEFINITIVA AUTOPLAY MÓVIL: HTML Nativo para evadir el bloqueo de React en iOS */}
+        <div 
+          className="absolute inset-0 w-full h-full overflow-hidden z-0"
+          dangerouslySetInnerHTML={{ __html: `
+            <video 
+              autoplay 
+              loop 
+              muted 
+              playsinline 
+              webkit-playsinline="true"
+              class="hero-video w-full h-full object-cover opacity-100"
+            >
+              <source src="/video-hero.mp4" type="video/mp4" />
+            </video>
+          `}}
+        />
+
+        <div className="hero-overlay relative z-10"></div>
 
         <div className="relative z-20 text-center px-4 animate-fade-in">
           <p className="text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase mb-4 text-orange-200 border border-orange-200/30 px-4 py-2 bg-black/30 backdrop-blur-sm inline-block">
@@ -102,7 +107,7 @@ const Home = () => {
       </div>
 
       {/* 2. COLLECTIONS GRID */}
-      <section id="collections" className="bg-white text-black py-24 px-6 md:px-12">
+      <section id="collections" className="bg-white text-black py-24 px-6 md:px-12 relative z-20">
         <div className="flex justify-between items-end mb-12">
           <div>
             <h2 className="text-xs font-bold text-orange-600 uppercase tracking-[0.2em] mb-3">{t.coll.over}</h2>
@@ -144,13 +149,13 @@ const Home = () => {
       </section>
 
       {/* 3. THE VAULT TEASER */}
-      <section id="vault" className="dvc-section bg-slate-900">
+      <section id="vault" className="dvc-section bg-slate-900 relative z-20">
         <img src="/floridian.jpg" alt="Grand Floridian Style" className="dvc-bg" />
         <div className="absolute inset-0 bg-black/20 mix-blend-multiply"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 items-center h-full">
           <div className="bg-black/60 backdrop-blur-xl p-10 md:p-16 border border-white/10 shadow-2xl relative">
-            <div className="flex items-center gap-4 mb-8 flex-wrap items-center">
+            <div className="flex items-center gap-4 mb-8 flex-wrap">
               <div className="flex items-center gap-2">
                  <div className="p-1 border border-orange-400/50 rounded-full"><Star className="w-3 h-3 text-orange-400 fill-current"/></div>
                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-200">{t.vault.badge}</span>
@@ -163,7 +168,6 @@ const Home = () => {
             <h2 className="text-5xl md:text-7xl font-serif mb-6 leading-none text-white">{t.vault.title1}<br />{t.vault.title2}</h2>
             <p className="text-2xl font-serif italic text-gray-300 mb-8 font-light border-l-2 border-orange-500 pl-4">{t.vault.subtitle}</p>
             <p className="text-gray-300 text-sm mb-12 leading-relaxed font-light">
-              {/* AQUÍ ESTÁ LA MAGIA DEL IDIOMA PARA LA 'S */}
               {t.vault.desc1} <strong><span className="font-walt text-xl">Disney</span> Vacation Club{lang === 'en' ? "'s" : ""}</strong> {t.vault.desc2} 
             </p>
             <div className="grid grid-cols-2 gap-12 mb-10 border-t border-white/10 pt-8">
