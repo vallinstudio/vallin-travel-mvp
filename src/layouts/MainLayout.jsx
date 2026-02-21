@@ -5,6 +5,7 @@ import { Menu, X, Phone, Mail, ShieldCheck, ArrowRight, CheckCircle, MessageCirc
 import { dictionary } from '../dictionary';
 import { useLanguage } from '../useLanguage';
 
+// FUNCIÓN PARA OBTENER FECHA LOCAL EXACTA (Bloquea días pasados en iOS)
 const getLocalToday = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -22,14 +23,17 @@ const MainLayout = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+
   const { lang, changeLanguage } = useLanguage();
   const t = dictionary[lang];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
+
     const consent = localStorage.getItem('vallin_cookie_consent');
     if (!consent) setShowCookieBanner(true);
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -79,6 +83,7 @@ const MainLayout = () => {
   const ContactModal = () => {
     const [formStatus, setFormStatus] = useState("idle");
     const [errors, setErrors] = useState({});
+
     const [formData, setFormData] = useState({
       name: '', email: '', countryCode: '+52', phone: '',
       startDate: '', endDate: '', destination: '', travelers: '', budget: '', requests: ''
@@ -121,7 +126,6 @@ const MainLayout = () => {
       if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: null });
     };
 
-    // JS DATE BLOCKER (Fallback para iPhone)
     const handleDateChange = (e) => {
         const fieldName = e.target.name;
         const newDate = e.target.value;
@@ -171,10 +175,11 @@ const MainLayout = () => {
       const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzBBPdY-rh2rAwC2t2iDS7I6C501_O0O2ECnVKENy8wwZjNqmUOTBryKb/exec";
 
       try {
-        // REVERTIDO A JSON.STRINGIFY (Garantiza que Google Sheet reciba el formato correcto)
+        // SOLUCIÓN DEFINITIVA A LOS LEADS: text/plain permite que JSON.stringify pase la barrera de seguridad.
         await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST", mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
+          method: "POST", 
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload),
         });
         setFormStatus("success");

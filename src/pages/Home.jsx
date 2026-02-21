@@ -56,11 +56,13 @@ const Home = () => {
     <>
       {/* 1. HERO SECTION */}
       <div className="hero-wrapper relative h-[100dvh] flex flex-col justify-center items-center bg-black">
+        {/* SOLUCIÓN AL VIDEO EN SAFARI MÓVIL: playsInline webkit-playsinline */}
         <video 
             autoPlay 
             loop 
             muted 
             playsInline 
+            webkit-playsinline="true"
             preload="auto"
             className="hero-video opacity-100"
         >
