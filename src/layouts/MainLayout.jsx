@@ -5,6 +5,15 @@ import { Menu, X, Phone, Mail, ShieldCheck, ArrowRight, CheckCircle, MessageCirc
 import { dictionary } from '../dictionary';
 import { useLanguage } from '../useLanguage';
 
+// FUNCIÓN PARA OBTENER FECHA LOCAL EXACTA (Bloquea días pasados en iOS)
+const getLocalToday = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const MainLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -153,10 +162,11 @@ const MainLayout = () => {
       const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzBBPdY-rh2rAwC2t2iDS7I6C501_O0O2ECnVKENy8wwZjNqmUOTBryKb/exec";
 
       try {
+        // CORRECCIÓN PARA EL GOOGLE APPS SCRIPT: URLSearchParams en lugar de JSON.stringify
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST", mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(payload)
         });
         setFormStatus("success");
       } catch (error) {
@@ -206,12 +216,13 @@ const MainLayout = () => {
                <div className="grid grid-cols-2 gap-4">
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.name}</label>
-                       <input name="name" type="text" value={formData.name} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.name ? 'border-red-500' : 'border-white/10'}`} placeholder={t.modal.namePl} />
+                       {/* AÑADIDO text-[16px] md:text-sm */}
+                       <input name="name" type="text" value={formData.name} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.name ? 'border-red-500' : 'border-white/10'}`} placeholder={t.modal.namePl} />
                        {errors.name && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.name}</span>}
                    </div>
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.email}</label>
-                       <input name="email" type="email" value={formData.email} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.email ? 'border-red-500' : 'border-white/10'}`} placeholder="email@domain.com" />
+                       <input name="email" type="email" value={formData.email} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.email ? 'border-red-500' : 'border-white/10'}`} placeholder="email@domain.com" />
                        {errors.email && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.email}</span>}
                    </div>
                </div>
@@ -219,10 +230,10 @@ const MainLayout = () => {
                <div>
                    <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.phone}</label>
                    <div className="flex gap-2">
-                      <select name="countryCode" value={formData.countryCode} onChange={handleChange} className="bg-black/40 border border-white/10 p-3 text-sm text-white focus:border-orange-500 outline-none w-24 appearance-none text-center">
+                      <select name="countryCode" value={formData.countryCode} onChange={handleChange} className="bg-black/40 border border-white/10 p-3 text-[16px] md:text-sm text-white focus:border-orange-500 outline-none w-24 appearance-none text-center">
                          <option value="+52">🇲🇽 +52</option><option value="+1">🇺🇸 +1</option><option value="+34">🇪🇸 +34</option><option value="+54">🇦🇷 +54</option>
                       </select>
-                      <input name="phone" type="tel" value={formData.phone} onChange={handleChange} className={`flex-1 bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.phone ? 'border-red-500' : 'border-white/10'}`} placeholder="10 digits" />
+                      <input name="phone" type="tel" value={formData.phone} onChange={handleChange} className={`flex-1 bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.phone ? 'border-red-500' : 'border-white/10'}`} placeholder="10 digits" />
                    </div>
                    {errors.phone && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.phone}</span>}
                </div>
@@ -230,19 +241,20 @@ const MainLayout = () => {
                <div className="grid grid-cols-2 gap-4">
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.in}</label>
-                       <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.startDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
+                       {/* AÑADIDO getLocalToday() */}
+                       <input name="startDate" type="date" min={getLocalToday()} value={formData.startDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.startDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
                        {errors.startDate && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.startDate}</span>}
                    </div>
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.out}</label>
-                       <input name="endDate" type="date" min={formData.startDate} value={formData.endDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm text-white focus:border-orange-500 transition outline-none ${errors.endDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
+                       <input name="endDate" type="date" min={formData.startDate || getLocalToday()} value={formData.endDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.endDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
                        {errors.endDate && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.endDate}</span>}
                    </div>
                </div>
 
                <div>
                  <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.where}</label>
-                 <select name="destination" value={formData.destination} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm focus:border-orange-500 transition outline-none appearance-none ${formData.destination === "" ? "text-gray-500" : "text-white"} ${errors.destination ? 'border-red-500' : 'border-white/10'}`}>
+                 <select name="destination" value={formData.destination} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm focus:border-orange-500 transition outline-none appearance-none ${formData.destination === "" ? "text-gray-500" : "text-white"} ${errors.destination ? 'border-red-500' : 'border-white/10'}`}>
                    <option value="" disabled>{t.modal.selColl}</option>
                    <option value="Disney World">{t.modal.wdw}</option>
                    <option value="Disneyland">{t.modal.dlr}</option>
@@ -257,15 +269,23 @@ const MainLayout = () => {
                <div className="grid grid-cols-2 gap-4">
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.pax}</label>
-                       <select name="travelers" value={formData.travelers} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm focus:border-orange-500 transition outline-none ${formData.travelers === "" ? "text-gray-500" : "text-white"} ${errors.travelers ? 'border-red-500' : 'border-white/10'}`}>
-                         <option value="" disabled>{t.modal.sel}</option><option>{t.modal.p1}</option><option>{t.modal.p2}</option><option>{t.modal.p3}</option>
+                       {/* VALUES DUROS EN INGLES */}
+                       <select name="travelers" value={formData.travelers} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm focus:border-orange-500 transition outline-none ${formData.travelers === "" ? "text-gray-500" : "text-white"} ${errors.travelers ? 'border-red-500' : 'border-white/10'}`}>
+                         <option value="" disabled>{t.modal.sel}</option>
+                         <option value="1-2 People">{t.modal.p1}</option>
+                         <option value="Family (3-5)">{t.modal.p2}</option>
+                         <option value="Large Group (6+)">{t.modal.p3}</option>
                        </select>
                        {errors.travelers && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.travelers}</span>}
                    </div>
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.bud}</label>
-                       <select name="budget" value={formData.budget} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-sm focus:border-orange-500 transition outline-none ${formData.budget === "" ? "text-gray-500" : "text-white"} ${errors.budget ? 'border-red-500' : 'border-white/10'}`}>
-                         <option value="" disabled>{t.modal.range}</option><option>$3,000 - $5,000</option><option>$5,000 - $10,000</option><option>$10,000 - $20,000</option><option>$20,000+</option>
+                       <select name="budget" value={formData.budget} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm focus:border-orange-500 transition outline-none ${formData.budget === "" ? "text-gray-500" : "text-white"} ${errors.budget ? 'border-red-500' : 'border-white/10'}`}>
+                         <option value="" disabled>{t.modal.range}</option>
+                         <option value="$3,000 - $5,000">$3,000 - $5,000</option>
+                         <option value="$5,000 - $10,000">$5,000 - $10,000</option>
+                         <option value="$10,000 - $20,000">$10,000 - $20,000</option>
+                         <option value="$20,000+">$20,000+</option>
                        </select>
                        {errors.budget && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.budget}</span>}
                    </div>
@@ -273,7 +293,7 @@ const MainLayout = () => {
 
                <div>
                  <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.req}</label>
-                 <textarea name="requests" rows="4" value={formData.requests} onChange={handleChange} className="w-full bg-black/40 border border-white/10 p-3 text-sm text-white focus:border-orange-500 transition outline-none font-sans" placeholder={t.modal.reqPl}></textarea>
+                 <textarea name="requests" rows="4" value={formData.requests} onChange={handleChange} className="w-full bg-black/40 border border-white/10 p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none font-sans" placeholder={t.modal.reqPl}></textarea>
                </div>
 
                 <button type="submit" disabled={formStatus === "submitting"} className="bg-white text-black py-4 mt-2 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 hover:text-white transition shadow-lg flex justify-center items-center gap-2 w-full cursor-pointer">
@@ -308,7 +328,6 @@ const MainLayout = () => {
           </div>
 
           <div className="hidden md:flex items-center justify-end gap-6 flex-1">
-            {/* BOTÓN IDIOMA DESKTOP MEJORADO */}
             <button 
                 onClick={() => changeLanguage(lang === 'en' ? 'es' : 'en')} 
                 className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black hover:bg-orange-500 hover:text-white' : 'bg-white/10 backdrop-blur-md hover:bg-white hover:text-black border border-white/20 text-white'}`}
@@ -326,7 +345,6 @@ const MainLayout = () => {
           </div>
 
           <div className="md:hidden flex items-center gap-4">
-            {/* BOTÓN IDIOMA MOBILE MEJORADO */}
             <button 
                 onClick={() => changeLanguage(lang === 'en' ? 'es' : 'en')} 
                 className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black' : 'bg-white/10 backdrop-blur-md border border-white/20 text-white'}`}
