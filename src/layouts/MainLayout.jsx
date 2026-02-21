@@ -5,7 +5,6 @@ import { Menu, X, Phone, Mail, ShieldCheck, ArrowRight, CheckCircle, MessageCirc
 import { dictionary } from '../dictionary';
 import { useLanguage } from '../useLanguage';
 
-// FUNCIÓN PARA OBTENER FECHA LOCAL EXACTA (Bloquea días pasados en iOS)
 const getLocalToday = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -19,22 +18,18 @@ const MainLayout = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [prefillData, setPrefillData] = useState(null); 
   const [scrolled, setScrolled] = useState(false);
-
   const [showCookieBanner, setShowCookieBanner] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
-
   const { lang, changeLanguage } = useLanguage();
   const t = dictionary[lang];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-
     const consent = localStorage.getItem('vallin_cookie_consent');
     if (!consent) setShowCookieBanner(true);
-
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -84,7 +79,6 @@ const MainLayout = () => {
   const ContactModal = () => {
     const [formStatus, setFormStatus] = useState("idle");
     const [errors, setErrors] = useState({});
-
     const [formData, setFormData] = useState({
       name: '', email: '', countryCode: '+52', phone: '',
       startDate: '', endDate: '', destination: '', travelers: '', budget: '', requests: ''
@@ -127,6 +121,21 @@ const MainLayout = () => {
       if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: null });
     };
 
+    // JS DATE BLOCKER (Fallback para iPhone)
+    const handleDateChange = (e) => {
+        const fieldName = e.target.name;
+        const newDate = e.target.value;
+        const today = getLocalToday();
+
+        if (newDate && newDate < today) {
+            alert(lang === 'es' ? "No es posible seleccionar fechas pasadas." : "You cannot select past dates.");
+            setFormData({ ...formData, [fieldName]: today });
+        } else {
+            setFormData({ ...formData, [fieldName]: newDate });
+        }
+        if (errors[fieldName]) setErrors({ ...errors, [fieldName]: null });
+    };
+
     const validateForm = () => {
       const newErrors = {};
       const { name, email, phone, startDate, endDate, destination, travelers, budget } = formData;
@@ -162,11 +171,11 @@ const MainLayout = () => {
       const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzBBPdY-rh2rAwC2t2iDS7I6C501_O0O2ECnVKENy8wwZjNqmUOTBryKb/exec";
 
       try {
-        // CORRECCIÓN PARA EL GOOGLE APPS SCRIPT: URLSearchParams en lugar de JSON.stringify
+        // REVERTIDO A JSON.STRINGIFY (Garantiza que Google Sheet reciba el formato correcto)
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST", mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams(payload)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         });
         setFormStatus("success");
       } catch (error) {
@@ -216,7 +225,6 @@ const MainLayout = () => {
                <div className="grid grid-cols-2 gap-4">
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.name}</label>
-                       {/* AÑADIDO text-[16px] md:text-sm */}
                        <input name="name" type="text" value={formData.name} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.name ? 'border-red-500' : 'border-white/10'}`} placeholder={t.modal.namePl} />
                        {errors.name && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.name}</span>}
                    </div>
@@ -241,13 +249,12 @@ const MainLayout = () => {
                <div className="grid grid-cols-2 gap-4">
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.in}</label>
-                       {/* AÑADIDO getLocalToday() */}
-                       <input name="startDate" type="date" min={getLocalToday()} value={formData.startDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.startDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
+                       <input name="startDate" type="date" min={getLocalToday()} value={formData.startDate} onChange={handleDateChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.startDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
                        {errors.startDate && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.startDate}</span>}
                    </div>
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.out}</label>
-                       <input name="endDate" type="date" min={formData.startDate || getLocalToday()} value={formData.endDate} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.endDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
+                       <input name="endDate" type="date" min={formData.startDate || getLocalToday()} value={formData.endDate} onChange={handleDateChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm text-white focus:border-orange-500 transition outline-none ${errors.endDate ? 'border-red-500' : 'border-white/10'}`} style={{colorScheme:'dark'}} />
                        {errors.endDate && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.endDate}</span>}
                    </div>
                </div>
@@ -269,7 +276,6 @@ const MainLayout = () => {
                <div className="grid grid-cols-2 gap-4">
                    <div>
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.pax}</label>
-                       {/* VALUES DUROS EN INGLES */}
                        <select name="travelers" value={formData.travelers} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm focus:border-orange-500 transition outline-none ${formData.travelers === "" ? "text-gray-500" : "text-white"} ${errors.travelers ? 'border-red-500' : 'border-white/10'}`}>
                          <option value="" disabled>{t.modal.sel}</option>
                          <option value="1-2 People">{t.modal.p1}</option>
@@ -312,7 +318,6 @@ const MainLayout = () => {
 
       <nav className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 border-b border-white/10 ${scrolled ? 'bg-black/95 py-4 shadow-xl' : 'bg-transparent py-6 md:py-8 border-transparent'}`}>
         <div className="px-6 md:px-12 flex items-center justify-between">
-
           <div onClick={handleLogoClick} className="flex flex-col cursor-pointer leading-none group flex-1">
             <div className="h-3.5 flex items-center mb-1">
               <img src="/logo.svg" alt="Vallin Travel" className="h-full w-auto object-contain filter brightness-0 invert" />
@@ -334,11 +339,9 @@ const MainLayout = () => {
             >
               {lang === 'en' ? 'ES' : 'EN'}
             </button>
-
             <a href="tel:+525655857811" className={`flex items-center gap-2 text-[10px] font-bold tracking-widest hover:text-orange-500 transition ${scrolled ? 'text-gray-400' : 'text-white/80'}`}>
                <Phone size={12} /> +52 56 5585 7811
             </a>
-
             <button onClick={() => handleOpenContact()} className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black hover:bg-orange-500 hover:text-white' : 'bg-white/10 backdrop-blur-md hover:bg-white hover:text-black border border-white/20'}`}>
               {t.nav.inquire}
             </button>
@@ -351,7 +354,6 @@ const MainLayout = () => {
             >
               {lang === 'en' ? 'ES' : 'EN'}
             </button>
-
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white">
               {isMenuOpen ? <X /> : <Menu />}
             </button>
@@ -442,7 +444,6 @@ const MainLayout = () => {
                   <img src="/studio-1.svg" alt="Vallin Studio" className="h-3 w-auto filter brightness-0 invert opacity-60" />
                   <p>© 2026 {t.footer.rights}</p>
               </a>
-
               <div className="flex gap-4 text-[8px] opacity-40 hover:opacity-100 transition-opacity">
                  <a href="https://es.vecteezy.com/videos-gratis/viaje" target="_blank" rel="noopener noreferrer" className="hover:text-white">Video by Vecteezy</a>
                  <span className="hidden md:inline">|</span>

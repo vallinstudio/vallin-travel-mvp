@@ -3,8 +3,10 @@ import { useOutletContext, useNavigate } from 'react-router-dom';
 import { Star, Zap, Lock, Users, Calendar, Search, AlertCircle, TrendingDown, ArrowRight, Info } from 'lucide-react';
 import ScrollIndicator from '../components/ScrollIndicator';
 
+// --- IMPORTAMOS CEREBRO Y DICCIONARIO ---
 import { dictionary } from '../dictionary';
 
+// --- 1. MOTOR DE TEMPORADAS DVC 2026 (REALISTA) ---
 const getSeasonTier = (dateString) => {
   if (!dateString) return 'tier2';
   const date = new Date(dateString + 'T00:00:00');
@@ -17,7 +19,7 @@ const getSeasonTier = (dateString) => {
   return 'tier2'; 
 };
 
-// FECHA LOCAL PARA BLOQUEAR DIAS PASADOS
+// FECHA LOCAL PARA BLOQUEAR DIAS PASADOS EN IPHONE
 const getLocalToday = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -26,11 +28,12 @@ const getLocalToday = () => {
   return `${year}-${month}-${day}`;
 };
 
+// --- 2. BASE DE DATOS DVC 2026 (IMÁGENES ÚNICAS) ---
 const dvcInventory = [
   {
     id: "vgf",
     name: "Grand Floridian Resort & Spa",
-    image: "/dvc-floridian.jpg", 
+    image: "/dvc-floridian.jpg", // EXCLUSIVA
     type: "Flagship Luxury",
     rooms: [
       { type: "Resort Studio", capacity: 5, points: { tier1: 16, tier2: 19, tier3: 23, tier4: 31 }, baseCashRate: 850 },
@@ -42,7 +45,7 @@ const dvcInventory = [
   {
     id: "poly",
     name: "Polynesian Villas & Bungalows",
-    image: "/dvc-polynesian.jpg", 
+    image: "/dvc-polynesian.jpg", // EXCLUSIVA (Ya no usa hm-bora)
     type: "Tropical Luxury",
     rooms: [
       { type: "Deluxe Studio", capacity: 5, points: { tier1: 16, tier2: 20, tier3: 25, tier4: 34 }, baseCashRate: 900 },
@@ -52,7 +55,7 @@ const dvcInventory = [
   {
     id: "riv",
     name: "Disney's Riviera Resort",
-    image: "/dvc-riviera.jpg", 
+    image: "/dvc-riviera.jpg", // EXCLUSIVA (Ya no usa hm-amalfi)
     type: "European Chic",
     rooms: [
       { type: "Tower Studio", capacity: 2, points: { tier1: 11, tier2: 13, tier3: 16, tier4: 21 }, baseCashRate: 550 },
@@ -64,7 +67,7 @@ const dvcInventory = [
   {
     id: "blt",
     name: "Bay Lake Tower (Contemporary)",
-    image: "/dvc-baylake.jpg", 
+    image: "/dvc-baylake.jpg", // EXCLUSIVA (Ya no usa exp-echo)
     type: "Modern Luxury",
     rooms: [
       { type: "Deluxe Studio", capacity: 4, points: { tier1: 14, tier2: 16, tier3: 20, tier4: 26 }, baseCashRate: 720 },
@@ -76,7 +79,7 @@ const dvcInventory = [
   {
     id: "akl",
     name: "Animal Kingdom Lodge",
-    image: "/dvc-akl.jpg", 
+    image: "/dvc-akl.jpg", // EXCLUSIVA (Ya no usa hm-safari)
     type: "Exotic Luxury",
     rooms: [
       { type: "Deluxe Studio", capacity: 4, points: { tier1: 10, tier2: 12, tier3: 15, tier4: 20 }, baseCashRate: 550 },
@@ -87,12 +90,14 @@ const dvcInventory = [
 ];
 
 const VaultPage = () => {
+  // OBTENEMOS EL IDIOMA DESDE EL OUTLET CONTEXT Y CARGAMOS EL DICCIONARIO
   const { openContact, lang } = useOutletContext();
   const navigate = useNavigate();
 
-  const tc = dictionary[lang].coll; 
-  const tv = dictionary[lang].vaultPage; 
+  const tc = dictionary[lang].coll; // Para la sección del carousel
+  const tv = dictionary[lang].vaultPage; // Para los textos propios de Vault
 
+  // Datos de Colecciones
   const collections = [
       { id: "disney", title: tc.c1, subtitle: "Disney & Universal", image: "/castillo.jpg", path: "/disney" },
       { id: "honeymoon", title: tc.c2, subtitle: tc.sub2, image: "/honey.jpeg", path: "/honeymoon" },
@@ -100,6 +105,7 @@ const VaultPage = () => {
       { id: "wellness", title: tc.c4, subtitle: tc.sub4, image: "/wellness.jpeg", path: "/wellness" }
   ];
 
+  // STATES
   const [guestCount, setGuestCount] = useState(2);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -118,8 +124,22 @@ const VaultPage = () => {
 
   const handleStartDateChange = (e) => {
     const newStart = e.target.value;
+    const today = getLocalToday();
+
+    // JS DATE BLOCKER (Fallback para iPhone)
+    if (newStart && newStart < today) {
+        alert(lang === 'es' ? "No es posible seleccionar fechas pasadas." : "You cannot select past dates.");
+        setStartDate(today);
+
+        const d = new Date(today);
+        d.setDate(d.getDate() + 1);
+        setEndDate(d.toISOString().split('T')[0]);
+        return;
+    }
+
     setStartDate(newStart);
 
+    // AUTO-AJUSTE: Check-Out default a +1 día
     if (newStart) {
         const d = new Date(newStart);
         d.setDate(d.getDate() + 1);
@@ -131,6 +151,8 @@ const VaultPage = () => {
 
   const handleEndDateChange = (e) => {
     const selectedEnd = e.target.value;
+
+    // Validación silenciosa: forzar +1 día si el usuario intenta fecha anterior
     if (startDate && selectedEnd <= startDate) {
         const d = new Date(startDate);
         d.setDate(d.getDate() + 1);
@@ -140,6 +162,7 @@ const VaultPage = () => {
     }
   };
 
+  // LÓGICA DE NEGOCIO INTACTA
   const handleSearch = () => {
     if (!startDate || !endDate) return;
 
@@ -165,6 +188,7 @@ const VaultPage = () => {
       const results = [];
 
       dvcInventory.forEach(resort => {
+        // 1. Single Room
         const singleRooms = resort.rooms.filter(room => room.capacity >= guestCount);
         singleRooms.forEach(room => {
           const pointsPerNight = room.points[currentTier];
@@ -194,6 +218,7 @@ const VaultPage = () => {
           });
         });
 
+        // 2. Split Room
         const splitRooms = resort.rooms.filter(room => (room.capacity * 2) >= guestCount && room.capacity < guestCount);
         splitRooms.forEach(room => {
           const pointsPerNight = room.points[currentTier] * 2;
@@ -224,16 +249,30 @@ const VaultPage = () => {
         });
       });
 
+      // Ordenar: Menor Precio Primero
       setAvailableOptions(results.sort((a, b) => a.smartPrice - b.smartPrice));
       setIsCalculating(false);
+
+      // FIX SCROLL: Cálculo de coordenadas para asegurar scroll en móvil
+      setTimeout(() => {
+        const resultsDiv = document.getElementById('vault-results');
+        if (resultsDiv) {
+            const yOffset = -80; 
+            const y = resultsDiv.getBoundingClientRect().top + window.scrollY + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 300); // 300ms permite que React renderice los resultados primero
+
     }, 800);
   };
 
   return (
     <div className="bg-white text-black min-h-screen font-sans selection:bg-orange-500 selection:text-white transition-colors duration-500">
 
+      {/* 1. HERO SECTION */}
       <div className="relative h-[60vh] md:h-[70vh] flex flex-col items-center justify-center bg-gray-900 overflow-hidden text-center px-4">
         <div className="absolute inset-0 opacity-100">
+            {/* Imagen del Hero sigue siendo Floridian, esa está ok */}
             <img src="/floridian.jpg" alt="Vault Background" className="w-full h-full object-cover" />
         </div>
         <div className="absolute inset-0 bg-black/60"></div>
@@ -261,6 +300,7 @@ const VaultPage = () => {
         </div>
       </div>
 
+      {/* 2. ENGINE INPUTS */}
       <div id="engine-section" className="max-w-7xl mx-auto px-6 pb-20 pt-12 relative z-20">
         <div className="bg-white rounded-sm shadow-2xl border border-gray-200 overflow-hidden">
 
@@ -299,7 +339,7 @@ const VaultPage = () => {
                         <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
                             <Calendar size={12} /> {tv.checkIn}
                         </label>
-                        {/* MIN=LOCALTODAY */}
+                        {/* MIN=LOCALTODAY Y TEXT-[16PX] */}
                         <input 
                             type="date" 
                             className="w-full bg-white border border-gray-300 p-4 font-sans text-[16px] md:text-sm focus:outline-none focus:border-orange-500 uppercase"
@@ -337,7 +377,8 @@ const VaultPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white min-h-[300px]">
+            {/* RESULTS CON ID PARA EL SCROLL */}
+            <div id="vault-results" className="bg-white min-h-[300px]">
 
                 {!hasSearched && (
                     <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400">
@@ -378,6 +419,7 @@ const VaultPage = () => {
 
                                         <div className="md:col-span-4 flex items-center gap-4">
                                             <div className="w-20 h-20 bg-gray-200 shrink-0 overflow-hidden rounded-sm">
+                                                {/* IMAGEN ESPECÍFICA DEL DVC */}
                                                 <img src={opt.resortImage} className="w-full h-full object-cover" alt={opt.resortName}/>
                                             </div>
                                             <div>
@@ -425,6 +467,7 @@ const VaultPage = () => {
                                                     {tv.approx} ${opt.savings.toLocaleString()} USD
                                                 </span>
                                             </div>
+                                            {/* BOTÓN CONTEXTUAL INTELIGENTE */}
                                             <button 
                                                 onClick={() => openContact({
                                                     source: 'vault',
@@ -460,6 +503,7 @@ const VaultPage = () => {
         </div>
       </div>
 
+      {/* 3. EXPLAINER */}
       <div className="bg-gray-50 py-20 px-6 border-t border-gray-200">
         <div className="max-w-4xl mx-auto text-center">
             <h3 className="text-3xl font-serif mb-12">{tv.protTitle}</h3>
@@ -489,6 +533,7 @@ const VaultPage = () => {
         </div>
       </div>
 
+      {/* 4. CONTINUE YOUR JOURNEY (CAROUSEL HÍBRIDO) */}
       <section className="py-20 bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6">
             <div className="flex justify-between items-end mb-8">
@@ -498,6 +543,7 @@ const VaultPage = () => {
                 </span>
             </div>
 
+            {/* CARRUSEL EN MÓVIL (SWIPE) | GRID EN DESKTOP (4 COLS) */}
             <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory md:grid md:grid-cols-4 md:overflow-visible scrollbar-hide">
               {collections.map((item) => (
                 <div 
