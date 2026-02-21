@@ -54,6 +54,33 @@ export const dictionary = {
       aff: "Independent Affiliate", 
       rights: "All rights reserved." 
     },
+    // --- NUEVO: OPCIONES BILINGÜES PARA EL FORMULARIO (Destinos, Presupuestos y Autollenado) ---
+    formOptions: {
+      destinations: [
+        { value: "Disney World", label: "Walt Disney World & Universal (Orlando)" },
+        { value: "Disneyland", label: "Disneyland & Universal Studios (California)" },
+        { value: "Disney Cruise", label: "Disney Cruise Line" },
+        { value: "Honeymoon", label: "Honeymoon" },
+        { value: "Expedition", label: "Expedition" },
+        { value: "Wellness", label: "Wellness & Clinics" },
+        { value: "Other", label: "Otra Solicitud a Medida" } // Mantenemos "Other" como value para compatibilidad backend
+      ],
+      budgets: [
+        { value: "Under $3k", label: "Under $3,000 USD" },
+        { value: "$3k-$5k", label: "$3,000 - $5,000" },
+        { value: "$5k-$10k", label: "$5,000 - $10,000" },
+        { value: "$10k-$20k", label: "$10,000 - $20,000" },
+        { value: "$20k+", label: "$20,000+" }
+      ],
+      autoFill: {
+        home: "I am interested in starting a custom journey (General Inquiry from Home).",
+        disney: "Interested in {brand} {location} ({hub}). Specifically: {item}",
+        honeymoon: "Honeymoon Inquiry: {brand} {location} ({hub}). Specifically: {item}",
+        expedition: "Expedition Inquiry: {brand} {location} ({hub}). Specifically: {item}",
+        wellness: "Wellness Inquiry: {brand} {location} ({hub}). Specifically: {item}",
+        vault: "🎯 SMART MOUSE QUOTE REQUEST\n\nI am interested in:\n- Resort: {resort}\n- Room: {room}\n- Smart Rate: ${price} USD\n- Estimated Savings: {savings}%\n\nPlease confirm availability for these dates."
+      }
+    },
     modal: {
       successTitle: "Request Received", 
       successDesc1: "We have secured your request.", 
@@ -71,11 +98,11 @@ export const dictionary = {
       out: "Check-Out", 
       where: "Where to? *", 
       selColl: "Select a Collection...", 
-      wdw: "Walt Disney World (Orlando)", 
-      dlr: "Disneyland (California)", 
+      wdw: "Walt Disney World & Universal (Orlando)", // Actualizado para legacy compatibility si se usa
+      dlr: "Disneyland & Universal Studios (California)",
       dcl: "Disney Cruise Line", 
-      uni: "Universal Studios", 
-      eur: "European Expedition", 
+      uni: "Universal Studios", // Mantenemos por si acaso, aunque ahora se agrupan
+      eur: "Expedition", 
       oth: "Other Custom Request", 
       pax: "Travelers *", 
       sel: "Select...", 
@@ -230,7 +257,7 @@ export const dictionary = {
         dlpHL: "European elegance. The most beautiful castle in the world.", dlpVibe: "Romance & Light",
         tkyHL: "The perfectionist's dream.", tkyVibe: "Perfection",
         shgHL: "Scale and Futurism. Zootopia & TRON.", shgVibe: "Majesty",
-        hkgHL: "Nestled among Lantau's mountains. World of Frozen.", hkgVibe: "Intimacy",
+        hkgHL: "Nestled among Lantau's mountains. World of Frozen.", hkgVibe: "Intimidad",
         usjHL: "Mario Bros, Donkey Kong Country and Godzilla.", usjVibe: "High Energy",
         gloVIP: "Global Fluency. We navigate the culture for you.",
         seaTitle: "The High Seas", seaSub: "Global Itineraries", seaDesc: "The world is the destination. Alaska, The Mediterranean, The Caribbean.",
@@ -357,6 +384,33 @@ export const dictionary = {
       aff: "Afiliado Independiente", 
       rights: "Todos los derechos reservados." 
     },
+    // --- NUEVO: OPCIONES BILINGÜES PARA EL FORMULARIO (Destinos, Presupuestos y Autollenado) ---
+    formOptions: {
+      destinations: [
+        { value: "Disney World", label: "Walt Disney World & Universal (Orlando)" },
+        { value: "Disneyland", label: "Disneyland & Universal Studios (California)" },
+        { value: "Disney Cruise", label: "Disney Cruise Line" },
+        { value: "Honeymoon", label: "Honeymoon" },
+        { value: "Expedition", label: "Expedition" },
+        { value: "Wellness", label: "Wellness & Clinics" },
+        { value: "Other", label: "Otra Solicitud a Medida" }
+      ],
+      budgets: [
+        { value: "Under $3k", label: "Menos de $3,000 USD" },
+        { value: "$3k-$5k", label: "$3,000 - $5,000 USD" },
+        { value: "$5k-$10k", label: "$5,000 - $10,000 USD" },
+        { value: "$10k-$20k", label: "$10,000 - $20,000 USD" },
+        { value: "$20k+", label: "Más de $20,000 USD" }
+      ],
+      autoFill: {
+        home: "Estoy interesado en diseñar un viaje a medida (Consulta General).",
+        disney: "Interesado en {brand} {location} ({hub}). Específicamente: {item}",
+        honeymoon: "Consulta de Luna de Miel: {brand} {location} ({hub}). Específicamente: {item}",
+        expedition: "Consulta de Expedición: {brand} {location} ({hub}). Específicamente: {item}",
+        wellness: "Consulta de Wellness: {brand} {location} ({hub}). Específicamente: {item}",
+        vault: "🎯 SOLICITUD DE COTIZACIÓN SMART MOUSE\n\nEstoy interesado en:\n- Resort: {resort}\n- Habitación: {room}\n- Tarifa Smart: ${price} USD\n- Ahorro Estimado: {savings}%\n\nPor favor confirmar disponibilidad para estas fechas."
+      }
+    },
     modal: {
       successTitle: "Solicitud Recibida", 
       successDesc1: "Hemos asegurado tu solicitud.", 
@@ -374,11 +428,11 @@ export const dictionary = {
       out: "Check-Out", 
       where: "¿A dónde? *", 
       selColl: "Selecciona un Destino...", 
-      wdw: "Walt Disney World (Orlando)", 
-      dlr: "Disneyland (California)", 
+      wdw: "Walt Disney World & Universal (Orlando)", 
+      dlr: "Disneyland & Universal Studios (California)", 
       dcl: "Disney Cruise Line", 
       uni: "Universal Studios", 
-      eur: "Expedición Europea", 
+      eur: "Expedición", 
       oth: "Otra Solicitud a Medida", 
       pax: "Viajeros *", 
       sel: "Seleccionar...", 

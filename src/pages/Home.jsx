@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ArrowRight, Star, ChevronsDown } from 'lucide-react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
-
-// Importar Diccionario
 import { dictionary } from '../dictionary';
 
 const Home = () => {
   const { openContact, lang } = useOutletContext();
   const navigate = useNavigate();
-  const t = dictionary[lang]; // Variables de texto en el idioma activo
+  const t = dictionary[lang]; 
+
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.playsInline = true;
+      videoRef.current.play().catch(error => {
+        console.log("Autoplay was prevented by browser:", error);
+      });
+    }
+  }, []);
 
   const handleScrollDown = () => {
     const section = document.getElementById('collections');
@@ -54,25 +65,18 @@ const Home = () => {
 
   return (
     <>
-      {/* 1. HERO SECTION */}
       <div className="hero-wrapper relative h-[100dvh] flex flex-col justify-center items-center bg-black">
-
-        {/* SOLUCIÓN DEFINITIVA AUTOPLAY MÓVIL: HTML Nativo para evadir el bloqueo de React en iOS */}
-        <div 
-          className="absolute inset-0 w-full h-full overflow-hidden z-0"
-          dangerouslySetInnerHTML={{ __html: `
-            <video 
-              autoplay 
-              loop 
-              muted 
-              playsinline 
-              webkit-playsinline="true"
-              class="hero-video w-full h-full object-cover opacity-100"
-            >
-              <source src="/video-hero.mp4" type="video/mp4" />
-            </video>
-          `}}
-        />
+        <video 
+            ref={videoRef}
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            preload="auto"
+            className="hero-video opacity-100"
+        >
+          <source src="/video-hero.mp4" type="video/mp4" />
+        </video>
 
         <div className="hero-overlay relative z-10"></div>
 
@@ -88,7 +92,7 @@ const Home = () => {
           </p>
 
           <button 
-            onClick={() => openContact({ destination: "Other", requests: "I am interested in starting a custom journey (General Inquiry from Home)." })}
+            onClick={() => openContact({ destination: "Other", requests: t.formOptions.autoFill.home })}
             className="group relative px-10 py-4 overflow-hidden transition-all duration-300 bg-transparent border border-white hover:bg-white"
           >
             <span className="relative z-10 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 group-hover:text-black">
@@ -106,7 +110,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* 2. COLLECTIONS GRID */}
       <section id="collections" className="bg-white text-black py-24 px-6 md:px-12 relative z-20">
         <div className="flex justify-between items-end mb-12">
           <div>
@@ -128,7 +131,6 @@ const Home = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 transition duration-500"></div>
               <div className="absolute bottom-10 left-8 text-white z-10 transform transition duration-500 group-hover:-translate-y-2">
                 <h4 className="text-3xl font-serif italic mb-2">{item.title}</h4>
-
                 <div className="text-xs uppercase tracking-widest opacity-80 mb-4 whitespace-nowrap flex items-center h-6">
                     {item.subtitle.includes("Disney") ? (
                       <div className="flex items-baseline gap-1.5 opacity-90">
@@ -140,7 +142,6 @@ const Home = () => {
                       <span>{item.subtitle}</span>
                     )}
                 </div>
-
                 <span className="text-[10px] font-bold uppercase tracking-widest border-b border-orange-500 pb-1 text-orange-300">{t.coll.explore}</span>
               </div>
             </div>
@@ -148,14 +149,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 3. THE VAULT TEASER */}
       <section id="vault" className="dvc-section bg-slate-900 relative z-20">
         <img src="/floridian.jpg" alt="Grand Floridian Style" className="dvc-bg" />
         <div className="absolute inset-0 bg-black/20 mix-blend-multiply"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 items-center h-full">
           <div className="bg-black/60 backdrop-blur-xl p-10 md:p-16 border border-white/10 shadow-2xl relative">
-            <div className="flex items-center gap-4 mb-8 flex-wrap">
+            <div className="flex items-center gap-4 mb-8 flex-wrap items-center">
               <div className="flex items-center gap-2">
                  <div className="p-1 border border-orange-400/50 rounded-full"><Star className="w-3 h-3 text-orange-400 fill-current"/></div>
                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-200">{t.vault.badge}</span>
@@ -174,10 +174,7 @@ const Home = () => {
               <div><p className="text-[9px] uppercase tracking-widest text-gray-500 mb-2">{t.vault.stdRate}</p><p className="text-xl font-serif text-gray-400 line-through decoration-white/30">$4,500 USD</p></div>
               <div><p className="text-[9px] uppercase tracking-widest text-orange-400 mb-2">{t.vault.smartRate}</p><p className="text-4xl font-serif text-white">$2,300 USD</p></div>
             </div>
-            <button 
-                onClick={() => navigate('/vault')} 
-                className="bg-orange-700 w-full py-5 text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition text-white shadow-2xl border border-orange-600/50"
-            >
+            <button onClick={() => navigate('/vault')} className="bg-orange-700 w-full py-5 text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition text-white shadow-2xl border border-orange-600/50">
                 {t.vault.btn}
             </button>
           </div>

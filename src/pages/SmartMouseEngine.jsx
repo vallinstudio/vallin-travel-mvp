@@ -234,7 +234,6 @@ const SmartMouseEngine = () => {
       setStep(1);
   };
 
-  // JS DATE BLOCKER (Fallback para iPhone)
   const handleStartDateChange = (e) => {
       const newStart = e.target.value;
       const today = getLocalToday();
@@ -703,7 +702,6 @@ const SmartMouseEngine = () => {
               <button onClick={() => setStep(1)} className="text-xs text-slate-500 hover:text-white mb-2 flex items-center gap-1"><ArrowRight className="rotate-180" size={12}/> {t.editParams}</button>
               <h2 className="text-3xl font-serif text-white">{t.smartOpps}</h2>
             </div>
-
             <div className="flex gap-2">
                 {vibe === 'cruise' && (
                     <div className="px-4 py-2 border border-[#d4af37]/30 bg-[#d4af37]/10 rounded-full text-[#d4af37] text-[10px] font-bold flex items-center gap-2">
@@ -715,7 +713,6 @@ const SmartMouseEngine = () => {
                 </button>
             </div>
           </div>
-
           <div className="grid grid-cols-1 gap-6">
             {results.map((r, idx) => (
               <div key={idx} className={`bg-white rounded-xl overflow-hidden shadow-2xl flex flex-col md:flex-row group ${r.priority ? 'ring-4 ring-[#d4af37]' : ''}`}>
@@ -725,7 +722,6 @@ const SmartMouseEngine = () => {
                   {r.priority && <div className="absolute bottom-3 left-3 bg-green-600 text-white text-[9px] font-bold px-2 py-1 rounded">{t.matchesReq}</div>}
                 </div>
                 <div className="flex-1 p-6 md:p-8 flex flex-col justify-between">
-
                   <div className="flex items-start gap-3">
                      {vibe === 'cruise' && (
                          <div className="w-12 h-12 rounded-full overflow-hidden border border-slate-200 shrink-0">
@@ -737,16 +733,13 @@ const SmartMouseEngine = () => {
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">{r.sub}</p>
                      </div>
                   </div>
-
                   <div className="flex gap-4 text-xs text-slate-600 border-b border-slate-100 pb-4 mb-4">
                        <span className="flex items-center gap-1"><Users size={14}/> {guestCount} {t.guests}</span>
                        <span className="flex items-center gap-1"><Calendar size={14}/> {r.desc}</span>
                        <span className="flex items-center gap-1"><MapPin size={14}/> {subRegion?.toUpperCase()}</span>
                   </div>
-
-                  {/* SOLUCIÓN: Botones siempre 100% en móvil */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mt-2">
-                    <div className="w-full sm:w-auto border-b sm:border-none border-slate-100 pb-4 sm:pb-0">
+                  <div className="flex items-end justify-between">
+                    <div>
                       {r.savings > 0 && <p className="text-xs text-red-400 line-through font-bold">{t.rackRate} ${r.retail.toLocaleString()}</p>}
                       <div className="flex items-baseline gap-1">
                           <span className="text-sm text-slate-400">{t.estQuote}</span>
@@ -754,14 +747,13 @@ const SmartMouseEngine = () => {
                       </div>
                       <p className="text-[9px] text-slate-400">{t.subjAvail}</p>
                     </div>
-                    <div className="w-full sm:w-auto text-left sm:text-right flex flex-col sm:flex-col justify-between items-start sm:items-end gap-2">
-                      {r.savings > 0 && <span className="text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded">{t.savePerc} {r.savings}%</span>}
-                      <button onClick={() => handleBookNow(r)} className="w-full sm:w-auto bg-[#0f172a] text-white px-8 py-4 rounded-lg text-xs font-bold hover:bg-[#d4af37] hover:text-black transition shadow-xl">
+                    <div className="text-right">
+                      {r.savings > 0 && <span className="block text-green-600 font-bold text-xs mb-2 bg-green-50 px-2 py-1 rounded">{t.savePerc} {r.savings}%</span>}
+                      <button onClick={() => handleBookNow(r)} className="bg-[#0f172a] text-white px-8 py-4 rounded-lg text-xs font-bold hover:bg-[#d4af37] hover:text-black transition shadow-xl hover:shadow-2xl">
                         {t.selectProp}
                       </button>
                     </div>
                   </div>
-
                 </div>
               </div>
             ))}
@@ -771,8 +763,6 @@ const SmartMouseEngine = () => {
 
       {step === 4 && (
         <div className="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in slide-in-from-bottom-8 duration-700">
-
-          {/* LEFT: PLANS (7 Cols) */}
           <div className="lg:col-span-7 space-y-8">
             <div>
                <button onClick={() => setStep(3)} className="text-xs text-slate-500 hover:text-white mb-4 flex items-center gap-1"><ArrowRight className="rotate-180" size={12}/> {t.changeProp}</button>
@@ -780,9 +770,7 @@ const SmartMouseEngine = () => {
                <p className="text-slate-400 text-sm">{t.srvDesc}</p>
                <p className="text-[10px] text-[#d4af37] font-bold mt-1">{t.noPay}</p>
             </div>
-
             <div className="space-y-4">
-               {/* DIY */}
                <div onClick={() => { setSelectedPlan('diy'); setConciergeAddOn(false); }} className={`p-6 rounded-2xl border-2 cursor-pointer transition flex items-center gap-5 ${selectedPlan === 'diy' ? 'border-[#d4af37] bg-[#1e293b]' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                   <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-slate-300"><FileText size={20}/></div>
                   <div className="flex-1">
@@ -791,8 +779,6 @@ const SmartMouseEngine = () => {
                   </div>
                   <span className="text-green-400 font-bold text-sm">$0 {t.fee}</span>
                </div>
-
-               {/* SMART MOUSE */}
                <div onClick={() => { setSelectedPlan('smart'); setConciergeAddOn(false); }} className={`p-6 rounded-2xl border-2 cursor-pointer transition flex items-center gap-5 relative overflow-hidden ${selectedPlan === 'smart' ? 'border-[#d4af37] bg-[#1e293b] shadow-[0_0_30px_rgba(212,175,55,0.1)]' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                   <div className="absolute top-0 right-0 bg-[#d4af37] text-[#0f172a] text-[9px] font-bold px-3 py-1">{t.mostPop}</div>
                   <div className="w-12 h-12 rounded-full bg-[#d4af37] flex items-center justify-center text-[#0f172a]"><Sparkles size={24}/></div>
@@ -804,8 +790,6 @@ const SmartMouseEngine = () => {
                      <span className="text-[#d4af37] font-bold text-lg block">$150</span>
                   </div>
                </div>
-
-               {/* CONCIERGE */}
                <div onClick={() => { setSelectedPlan('concierge'); setConciergeAddOn(false); }} className={`p-6 rounded-2xl border-2 cursor-pointer transition flex items-center gap-5 ${selectedPlan === 'concierge' ? 'border-[#d4af37] bg-[#1e293b]' : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                   <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-slate-300"><Calendar size={20}/></div>
                   <div className="flex-1">
@@ -815,8 +799,6 @@ const SmartMouseEngine = () => {
                   <span className="text-white font-bold text-sm">$200</span>
                </div>
             </div>
-
-            {/* RESOURCES */}
             <div className="pt-8 border-t border-slate-800">
                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">{t.selfSrv}</h4>
                <div className="grid grid-cols-2 gap-4">
@@ -837,26 +819,13 @@ const SmartMouseEngine = () => {
                </div>
             </div>
           </div>
-
-          {/* RIGHT: FINALIZE (5 Cols) */}
           <div className="lg:col-span-5 bg-white rounded-3xl p-8 text-[#0f172a] h-fit shadow-2xl relative overflow-hidden">
              <div className="absolute top-0 left-0 w-full h-2 bg-[#d4af37]"></div>
-
              <h3 className="font-serif font-bold text-xl mb-6 text-center">{t.confirmReq}</h3>
-
              <div className="bg-slate-50 p-4 rounded-xl mb-6 text-xs border border-slate-200 space-y-2">
-                <div className="flex justify-between font-bold">
-                    <span>{t.property}</span>
-                    <span>{selectedOption.name}</span>
-                </div>
-                <div className="flex justify-between text-slate-500">
-                    <span>{t.unit}</span>
-                    <span>{selectedOption.sub}</span>
-                </div>
-                <div className="flex justify-between text-slate-500">
-                    <span>{t.travelers}</span>
-                    <span>{guestCount} {t.guests}</span>
-                </div>
+                <div className="flex justify-between font-bold"><span>{t.property}</span><span>{selectedOption.name}</span></div>
+                <div className="flex justify-between text-slate-500"><span>{t.unit}</span><span>{selectedOption.sub}</span></div>
+                <div className="flex justify-between text-slate-500"><span>{t.travelers}</span><span>{guestCount} {t.guests}</span></div>
                 <div className="flex justify-between text-slate-500 border-b border-slate-200 pb-2">
                     <span>{t.dates}</span>
                     <span>{subRegion === 'exotic' ? "Flexible" : (vibe === 'cruise' ? `${startDate} (${cruiseNights} ${lang === 'es'?'Noches':'Nights'})` : `${startDate} / ${endDate}`)}</span>
@@ -866,14 +835,10 @@ const SmartMouseEngine = () => {
                     <span>{selectedOption.price === 'TBD' ? 'Manual Quote' : `$${selectedOption.price.toLocaleString()}`}</span>
                 </div>
              </div>
-
-             {/* LEGAL DISCLAIMER */}
              <div className="mb-6 flex gap-2 items-start bg-yellow-50 p-3 rounded text-[9px] text-yellow-800 border border-yellow-100">
                  <AlertCircle size={14} className="shrink-0 mt-0.5"/>
                  <p>{t.legalDisc}</p>
              </div>
-
-             {/* UPSELL DIY */}
              {selectedPlan === 'diy' && (
                 <div onClick={() => setConciergeAddOn(!conciergeAddOn)} className={`mb-6 border p-4 rounded-xl cursor-pointer flex items-center justify-between transition ${conciergeAddOn ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'bg-white border-slate-300 text-slate-500 hover:border-[#0f172a]'}`}>
                    <div className="flex items-center gap-3">
@@ -891,14 +856,11 @@ const SmartMouseEngine = () => {
                    </div>
                 </div>
              )}
-
-             {/* FORM DE CONTACTO */}
              <div className="space-y-4">
                 <div>
                    <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">{t.fullName}</label>
                    <input required type="text" value={leadName} onChange={(e) => setLeadName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-[16px] md:text-sm outline-none focus:border-[#0f172a] transition max-w-full"/>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                        <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">{t.emailInput}</label>
@@ -914,7 +876,6 @@ const SmartMouseEngine = () => {
                        </div>
                     </div>
                 </div>
-
                 <div className="flex items-start gap-2 py-2">
                     <input type="checkbox" checked={insuranceCheck} onChange={(e) => setInsuranceCheck(e.target.checked)} className="mt-1 accent-[#d4af37]"/>
                     <div>
@@ -922,12 +883,10 @@ const SmartMouseEngine = () => {
                         <p className="text-[9px] text-slate-400">{t.insurSub}</p>
                     </div>
                 </div>
-
                 <div className="flex items-center gap-2 mb-4 border-t border-slate-100 pt-4">
                    <input type="checkbox" checked={legalCheck} onChange={(e) => setLegalCheck(e.target.checked)} className="accent-[#d4af37] cursor-pointer"/>
                    <label onClick={() => setLegalCheck(!legalCheck)} className="text-[10px] text-slate-500 cursor-pointer hover:text-black">{t.termsCheck}</label>
                 </div>
-
                 <button onClick={() => finalizeBooking('Web Form')} className="w-full bg-[#0f172a] text-white py-4 rounded-xl text-sm font-bold hover:bg-[#d4af37] hover:text-[#0f172a] transition shadow-lg flex items-center justify-center gap-2">
                     {t.confBtn} <ArrowRight size={16}/>
                 </button>
@@ -942,10 +901,7 @@ const SmartMouseEngine = () => {
               <Check size={48} className="animate-bounce"/>
            </div>
            <h2 className="text-4xl md:text-5xl font-serif text-white mb-4">{t.reqRec}</h2>
-           <p className="text-slate-400 max-w-md mx-auto leading-relaxed mb-10 text-sm">
-              {t.reqRecDesc}
-           </p>
-
+           <p className="text-slate-400 max-w-md mx-auto leading-relaxed mb-10 text-sm">{t.reqRecDesc}</p>
            <div className="flex flex-col gap-4 w-full max-w-sm">
                <button onClick={() => window.open('https://wa.me/525655857811', '_blank')} className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg">
                    <Phone size={18}/> {lang === 'es' ? 'Chat por WhatsApp (Opcional)' : 'Chat on WhatsApp (Optional)'}
@@ -955,7 +911,6 @@ const SmartMouseEngine = () => {
         </div>
       )}
 
-      {/* FOOTER */}
       <footer className="border-t border-slate-800 py-8 px-4 mt-auto bg-[#020617]">
          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-600">
             <p>Smart Mouse is an independent engine powered by <VallinBrand/>.</p>

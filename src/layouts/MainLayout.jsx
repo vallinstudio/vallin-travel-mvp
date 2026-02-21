@@ -99,15 +99,20 @@ const MainLayout = () => {
                 else travelerRange = t.modal.p3;
             }
 
-            let dest = prefillData.destination || "Disney World"; 
+            let dest = prefillData.destination || "Other"; 
             if (prefillData.resortName) {
-                if (prefillData.resortName.includes("Disneyland")) dest = "Disneyland";
+                if (prefillData.resortName.includes("Disneyland") || prefillData.resortName.includes("Californian")) dest = "Disneyland";
                 else if (prefillData.resortName.includes("Aulani")) dest = "Other";
+                else dest = "Disney World";
             }
 
             let finalMessage = prefillData.requests || ""; 
             if (prefillData.source === 'vault') {
-                finalMessage = `🎯 SMART MOUSE QUOTE REQUEST\n\nI am interested in:\n- Resort: ${prefillData.resortName}\n- Room: ${prefillData.roomName}\n- Smart Rate: $${prefillData.price?.toLocaleString()} USD\n- Estimated Savings: ${prefillData.savings}%\n\nPlease confirm availability for these dates.`;
+                finalMessage = t.formOptions.autoFill.vault
+                    .replace('{resort}', prefillData.resortName)
+                    .replace('{room}', prefillData.roomName)
+                    .replace('{price}', prefillData.price?.toLocaleString())
+                    .replace('{savings}', prefillData.savings);
             }
 
             setFormData(prev => ({
@@ -175,7 +180,7 @@ const MainLayout = () => {
       const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzBBPdY-rh2rAwC2t2iDS7I6C501_O0O2ECnVKENy8wwZjNqmUOTBryKb/exec";
 
       try {
-        // SOLUCIÓN DEFINITIVA A LOS LEADS: text/plain permite que JSON.stringify pase la barrera de seguridad.
+        // SOLUCIÓN AL FANTASMA: text/plain fuerza el envío del JSON sin bloqueos CORS
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST", 
           mode: "no-cors",
@@ -190,9 +195,10 @@ const MainLayout = () => {
     };
 
     const getWhatsAppLink = () => {
+      const destLabel = t.formOptions.destinations.find(d => d.value === formData.destination)?.label || formData.destination;
       const text = lang === 'es' 
-        ? `Hola Jorge, acabo de solicitar información en vallin.travel para *${formData.destination}*. Mi nombre es *${formData.name}*.`
-        : `Hi Jorge, I just requested information on vallin.travel for *${formData.destination}*. My name is *${formData.name}*.`;
+        ? `Hola Jorge, acabo de solicitar información en vallin.travel para *${destLabel}*. Mi nombre es *${formData.name}*.`
+        : `Hi Jorge, I just requested information on vallin.travel for *${destLabel}*. My name is *${formData.name}*.`;
       return `https://wa.me/525655857811?text=${encodeURIComponent(text)}`;
     };
 
@@ -268,12 +274,9 @@ const MainLayout = () => {
                  <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.where}</label>
                  <select name="destination" value={formData.destination} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm focus:border-orange-500 transition outline-none appearance-none ${formData.destination === "" ? "text-gray-500" : "text-white"} ${errors.destination ? 'border-red-500' : 'border-white/10'}`}>
                    <option value="" disabled>{t.modal.selColl}</option>
-                   <option value="Disney World">{t.modal.wdw}</option>
-                   <option value="Disneyland">{t.modal.dlr}</option>
-                   <option value="Disney Cruise">{t.modal.dcl}</option>
-                   <option value="Universal">{t.modal.uni}</option>
-                   <option value="Europe">{t.modal.eur}</option>
-                   <option value="Other">{t.modal.oth}</option>
+                   {t.formOptions.destinations.map(d => (
+                       <option key={d.value} value={d.value}>{d.label}</option>
+                   ))}
                  </select>
                  {errors.destination && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.destination}</span>}
                </div>
@@ -293,10 +296,9 @@ const MainLayout = () => {
                        <label className="text-[9px] uppercase tracking-widest text-gray-500 mb-2 block">{t.modal.bud}</label>
                        <select name="budget" value={formData.budget} onChange={handleChange} className={`w-full bg-black/40 border p-3 text-[16px] md:text-sm focus:border-orange-500 transition outline-none ${formData.budget === "" ? "text-gray-500" : "text-white"} ${errors.budget ? 'border-red-500' : 'border-white/10'}`}>
                          <option value="" disabled>{t.modal.range}</option>
-                         <option value="$3,000 - $5,000">$3,000 - $5,000</option>
-                         <option value="$5,000 - $10,000">$5,000 - $10,000</option>
-                         <option value="$10,000 - $20,000">$10,000 - $20,000</option>
-                         <option value="$20,000+">$20,000+</option>
+                         {t.formOptions.budgets.map(b => (
+                             <option key={b.value} value={b.value}>{b.label}</option>
+                         ))}
                        </select>
                        {errors.budget && <span className="text-red-400 text-[9px] mt-1 flex items-center gap-1"><AlertCircle size={10}/> {errors.budget}</span>}
                    </div>
@@ -323,6 +325,7 @@ const MainLayout = () => {
 
       <nav className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 border-b border-white/10 ${scrolled ? 'bg-black/95 py-4 shadow-xl' : 'bg-transparent py-6 md:py-8 border-transparent'}`}>
         <div className="px-6 md:px-12 flex items-center justify-between">
+
           <div onClick={handleLogoClick} className="flex flex-col cursor-pointer leading-none group flex-1">
             <div className="h-3.5 flex items-center mb-1">
               <img src="/logo.svg" alt="Vallin Travel" className="h-full w-auto object-contain filter brightness-0 invert" />
@@ -344,9 +347,11 @@ const MainLayout = () => {
             >
               {lang === 'en' ? 'ES' : 'EN'}
             </button>
+
             <a href="tel:+525655857811" className={`flex items-center gap-2 text-[10px] font-bold tracking-widest hover:text-orange-500 transition ${scrolled ? 'text-gray-400' : 'text-white/80'}`}>
                <Phone size={12} /> +52 56 5585 7811
             </a>
+
             <button onClick={() => handleOpenContact()} className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black hover:bg-orange-500 hover:text-white' : 'bg-white/10 backdrop-blur-md hover:bg-white hover:text-black border border-white/20'}`}>
               {t.nav.inquire}
             </button>
@@ -359,6 +364,7 @@ const MainLayout = () => {
             >
               {lang === 'en' ? 'ES' : 'EN'}
             </button>
+
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white">
               {isMenuOpen ? <X /> : <Menu />}
             </button>
@@ -449,6 +455,7 @@ const MainLayout = () => {
                   <img src="/studio-1.svg" alt="Vallin Studio" className="h-3 w-auto filter brightness-0 invert opacity-60" />
                   <p>© 2026 {t.footer.rights}</p>
               </a>
+
               <div className="flex gap-4 text-[8px] opacity-40 hover:opacity-100 transition-opacity">
                  <a href="https://es.vecteezy.com/videos-gratis/viaje" target="_blank" rel="noopener noreferrer" className="hover:text-white">Video by Vecteezy</a>
                  <span className="hidden md:inline">|</span>

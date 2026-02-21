@@ -3,11 +3,8 @@ import { useOutletContext } from 'react-router-dom';
 import { Star, Zap, MapPin } from 'lucide-react';
 import NextJourney from '../components/NextJourney';
 import ScrollIndicator from '../components/ScrollIndicator';
-
-// --- IMPORTAMOS EL DICCIONARIO ---
 import { dictionary } from '../dictionary';
 
-// --- DATOS DINÁMICOS POR IDIOMA ---
 const getHubs = (td) => ({
   maldives: {
     id: "maldives",
@@ -149,17 +146,16 @@ const getHubs = (td) => ({
 });
 
 const HoneymoonPage = () => {
-  // EXTRAEMOS IDIOMA Y DICCIONARIO
   const { openContact, lang } = useOutletContext();
   const td = dictionary[lang].honeymoonPage;
-  const tp = dictionary[lang].disneyPage; // Reutilizamos textos generales como "Explore Access"
+  const tp = dictionary[lang].disneyPage; 
+  const tfo = dictionary[lang].formOptions;
   const hubs = getHubs(td);
 
   const [activeHub, setActiveHub] = useState('maldives');
   const [activeItems, setActiveItems] = useState({});
   const isFirstRender = useRef(true);
 
-  // CONTROL DE SCROLL
   useEffect(() => {
     setActiveItems({});
 
@@ -181,7 +177,6 @@ const HoneymoonPage = () => {
   return (
     <div className="bg-white text-black min-h-screen font-sans selection:bg-orange-500 selection:text-white transition-colors duration-500">
 
-      {/* 1. HERO SECTION (SIN FLECHA) */}
       <div className="relative h-[65vh] md:h-[75vh] flex items-end pb-16 justify-center overflow-hidden bg-gray-900">
 
         {Object.values(hubs).map((hub) => {
@@ -217,7 +212,6 @@ const HoneymoonPage = () => {
         </div>
       </div>
 
-      {/* 2. VISUAL NAVIGATION */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-md">
         <div className="grid grid-cols-4 h-20 md:h-28 gap-px bg-gray-200">
             {Object.values(hubs).map((hub) => (
@@ -242,10 +236,8 @@ const HoneymoonPage = () => {
         </div>
       </div>
 
-      {/* --- FLECHA DE SCROLL --- */}
       <ScrollIndicator targetId="hub-content" />
 
-      {/* 3. EXPERIENCE CARDS */}
       <div id="hub-content" className="max-w-7xl mx-auto px-6 pb-20 pt-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
 
@@ -254,6 +246,12 @@ const HoneymoonPage = () => {
                 const currentItem = brand.items[currentItemIndex];
 
                 if (!currentItem) return null;
+
+                const msg = tfo.autoFill.honeymoon
+                  .replace('{brand}', brand.brandPart)
+                  .replace('{location}', brand.locPart)
+                  .replace('{hub}', currentHub.label)
+                  .replace('{item}', currentItem.name);
 
                 return (
                     <div 
@@ -306,12 +304,8 @@ const HoneymoonPage = () => {
                             </div>
                         </div>
 
-                        {/* BOTÓN INTELIGENTE: EXPLORE ACCESS */}
                         <button 
-                            onClick={() => openContact({ 
-                                destination: "Other", 
-                                requests: `Honeymoon Inquiry: ${brand.brandPart} ${brand.locPart} (${currentHub.label}). Specifically: ${currentItem.name}` 
-                            })}
+                            onClick={() => openContact({ destination: "Honeymoon", requests: msg })}
                             className="relative z-10 text-[10px] font-bold uppercase tracking-[0.25em] border-b pb-1 transition-all w-fit mt-4 text-white border-white hover:text-orange-300 hover:border-orange-300"
                         >
                             {tp.exploreAcc}
@@ -322,7 +316,6 @@ const HoneymoonPage = () => {
 
         </div>
 
-        {/* 4. EXTENDED HORIZONS */}
         <div className="mt-16 bg-gray-50 p-8 md:p-12 border-t border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
 
@@ -363,11 +356,10 @@ const HoneymoonPage = () => {
                         "{currentHub.vipPromise}"
                     </p>
 
-                    {/* BOTÓN INTELIGENTE: START PLANNING */}
                     <button 
                         onClick={() => openContact({ 
-                            destination: "Other", 
-                            requests: `Honeymoon VIP Planning: ${currentHub.label}. Interested in: "${currentHub.vipPromise}"` 
+                            destination: "Honeymoon", 
+                            requests: lang === 'es' ? `Planeación VIP para ${currentHub.label}. Interesado en La Diferencia VIP: "${currentHub.vipPromise}"` : `VIP Planning for ${currentHub.label}. Interested in The VIP Difference: "${currentHub.vipPromise}"` 
                         })}
                         className="bg-black text-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-orange-600 transition shadow-xl w-full md:w-auto"
                     >
@@ -378,7 +370,6 @@ const HoneymoonPage = () => {
         </div>
       </div>
 
-      {/* 5. NEXT JOURNEY - CROSS LINKING */}
       <NextJourney current="honeymoon" />
 
     </div>
