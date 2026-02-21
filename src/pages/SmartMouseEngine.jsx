@@ -158,7 +158,7 @@ const cruiseInventory = {
   ]
 };
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzBBPdY-rh2rAwC2t2iDS7I6C501_O0O2ECnVKENy8wwZjNqmUOTBryKb/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXZBCj2PAjtA_6rWjZL0loKeeSbbu2TuFqJVjIr_eSYZlqa6M6QzEk-SMIHqIl0b0z/exec";
 
 const SmartMouseEngine = () => {
   const navigate = useNavigate();
@@ -404,13 +404,15 @@ const SmartMouseEngine = () => {
       setStep(4);
   };
 
-  const sendDataToScript = async (payload) => {
+  const sendDataToScript = async (payloadObj) => {
     try {
-        // CORRECCIÓN PARA EL GOOGLE APPS SCRIPT: URLSearchParams en lugar de JSON.stringify
+        // Usamos URLSearchParams: formato nativo antibloqueos
+        const payload = new URLSearchParams(payloadObj);
+
         await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST", mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(payload),
+            method: "POST", 
+            mode: "no-cors",
+            body: payload,
         });
     } catch (error) { console.error("Script Error", error); }
   };
@@ -738,8 +740,10 @@ const SmartMouseEngine = () => {
                        <span className="flex items-center gap-1"><Calendar size={14}/> {r.desc}</span>
                        <span className="flex items-center gap-1"><MapPin size={14}/> {subRegion?.toUpperCase()}</span>
                   </div>
-                  <div className="flex items-end justify-between">
-                    <div>
+
+                  {/* CONTENEDOR CORREGIDO: Botón en su propio renglón en móvil */}
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-4">
+                    <div className="w-full sm:w-auto border-b border-slate-100 sm:border-none pb-4 sm:pb-0">
                       {r.savings > 0 && <p className="text-xs text-red-400 line-through font-bold">{t.rackRate} ${r.retail.toLocaleString()}</p>}
                       <div className="flex items-baseline gap-1">
                           <span className="text-sm text-slate-400">{t.estQuote}</span>
@@ -747,13 +751,15 @@ const SmartMouseEngine = () => {
                       </div>
                       <p className="text-[9px] text-slate-400">{t.subjAvail}</p>
                     </div>
-                    <div className="text-right">
-                      {r.savings > 0 && <span className="block text-green-600 font-bold text-xs mb-2 bg-green-50 px-2 py-1 rounded">{t.savePerc} {r.savings}%</span>}
-                      <button onClick={() => handleBookNow(r)} className="bg-[#0f172a] text-white px-8 py-4 rounded-lg text-xs font-bold hover:bg-[#d4af37] hover:text-black transition shadow-xl hover:shadow-2xl">
+
+                    <div className="flex flex-col items-start sm:items-end w-full sm:w-auto gap-2">
+                      {r.savings > 0 && <span className="block text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded">{t.savePerc} {r.savings}%</span>}
+                      <button onClick={() => handleBookNow(r)} className="w-full sm:w-auto bg-[#0f172a] text-white px-8 py-4 rounded-lg text-xs font-bold hover:bg-[#d4af37] hover:text-black transition shadow-xl hover:shadow-2xl">
                         {t.selectProp}
                       </button>
                     </div>
                   </div>
+
                 </div>
               </div>
             ))}

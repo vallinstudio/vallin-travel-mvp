@@ -169,23 +169,22 @@ const MainLayout = () => {
       if (!validateForm()) return;
       setFormStatus("submitting");
 
-      const payload = {
+      // Usamos URLSearchParams: es el formato nativo de la web y NINGÚN NAVEGADOR LO BLOQUEA
+      const payload = new URLSearchParams({
         name: formData.name, email: formData.email,
         phone: `${formData.countryCode} ${formData.phone}`,
         dates: `${formData.startDate} to ${formData.endDate || 'Flexible'}`,
         destination: formData.destination, travelers: formData.travelers,
         budget: formData.budget, requests: formData.requests
-      };
+      });
 
-      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfTry8sbHFzBBPdY-rh2rAwC2t2iDS7I6C501_O0O2ECnVKENy8wwZjNqmUOTBryKb/exec";
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXZBCj2PAjtA_6rWjZL0loKeeSbbu2TuFqJVjIr_eSYZlqa6M6QzEk-SMIHqIl0b0z/exec";
 
       try {
-        // SOLUCIÓN AL FANTASMA: text/plain fuerza el envío del JSON sin bloqueos CORS
         await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST", 
+          method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
+          body: payload,
         });
         setFormStatus("success");
       } catch (error) {
@@ -325,7 +324,6 @@ const MainLayout = () => {
 
       <nav className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 border-b border-white/10 ${scrolled ? 'bg-black/95 py-4 shadow-xl' : 'bg-transparent py-6 md:py-8 border-transparent'}`}>
         <div className="px-6 md:px-12 flex items-center justify-between">
-
           <div onClick={handleLogoClick} className="flex flex-col cursor-pointer leading-none group flex-1">
             <div className="h-3.5 flex items-center mb-1">
               <img src="/logo.svg" alt="Vallin Travel" className="h-full w-auto object-contain filter brightness-0 invert" />
@@ -347,11 +345,9 @@ const MainLayout = () => {
             >
               {lang === 'en' ? 'ES' : 'EN'}
             </button>
-
             <a href="tel:+525655857811" className={`flex items-center gap-2 text-[10px] font-bold tracking-widest hover:text-orange-500 transition ${scrolled ? 'text-gray-400' : 'text-white/80'}`}>
                <Phone size={12} /> +52 56 5585 7811
             </a>
-
             <button onClick={() => handleOpenContact()} className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition shadow-lg ${scrolled ? 'bg-white text-black hover:bg-orange-500 hover:text-white' : 'bg-white/10 backdrop-blur-md hover:bg-white hover:text-black border border-white/20'}`}>
               {t.nav.inquire}
             </button>
@@ -364,7 +360,6 @@ const MainLayout = () => {
             >
               {lang === 'en' ? 'ES' : 'EN'}
             </button>
-
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white">
               {isMenuOpen ? <X /> : <Menu />}
             </button>
@@ -455,7 +450,6 @@ const MainLayout = () => {
                   <img src="/studio-1.svg" alt="Vallin Studio" className="h-3 w-auto filter brightness-0 invert opacity-60" />
                   <p>© 2026 {t.footer.rights}</p>
               </a>
-
               <div className="flex gap-4 text-[8px] opacity-40 hover:opacity-100 transition-opacity">
                  <a href="https://es.vecteezy.com/videos-gratis/viaje" target="_blank" rel="noopener noreferrer" className="hover:text-white">Video by Vecteezy</a>
                  <span className="hidden md:inline">|</span>
